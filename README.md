@@ -1,1 +1,1 @@
-# Chains-Hybrid-Partition-ECC
+# Chains of Hybrid Partition
