@@ -1,5 +1,5 @@
 ##############################################################################
-
+# CHAINS OF HYBRID PARTITIONS                                                #
 # Copyright (C) 2022                                                         #
 #                                                                            #
 # This code is free software: you can redistribute it and/or modify it under #
@@ -11,13 +11,20 @@
 # Public License for more details.                                           #
 #                                                                            #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri           #
-# Ferrandin | Federal University of Sao Carlos                               #
-# (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos | Computer Department  #
-# (DC: https://site.dc.ufscar.br/) | Program of Post Graduation in Computer  #
-# Science (PPG-CC: http://ppgcc.dc.ufscar.br/) | Bioinformatics and Machine  #
-# Learning Group (BIOMAL: http://www.biomal.ufscar.br/)                      #
+# Ferrandin | Prof. Dr. Celine Vens | PhD Felipe Nakano Kenji                #
+#                                                                            #
+# Federal University of São Carlos - UFSCar - https://www2.ufscar.br         #
+# Campus São Carlos - Computer Department - DC - https://site.dc.ufscar.br   #
+# Post Graduate Program in Computer Science - PPGCC                          # 
+# http://ppgcc.dc.ufscar.br - Bioinformatics and Machine Learning Group      #
+# BIOMAL - http://www.biomal.ufscar.br                                       #
+#                                                                            #
+# Katholieke Universiteit Leuven Campus Kulak Kortrijk Belgium               #
+# Medicine Department - https://kulak.kuleuven.be/                           #
+# https://kulak.kuleuven.be/nl/over_kulak/faculteiten/geneeskunde            #
 #                                                                            #
 ##############################################################################
+
 
 
 ###########################################################################
@@ -107,9 +114,9 @@ executa <- function(parameters){
   parameters$All.Partitions = resAP
   
   
-  cat("\n\n#####################################################")
-    cat("\n# RUN: Compute Label Atributes                      #")
-    cat("\n#####################################################\n\n")
+  # cat("\n\n#####################################################")
+  #  cat("\n# RUN: Compute Label Atributes                      #")
+  #  cat("\n#####################################################\n\n")
   timeCLA = system.time(resCLA <- compute.labels.attributes(parameters))
   parameters$Labels.Attr = resCLA
   
@@ -143,13 +150,17 @@ executa <- function(parameters){
     timeGather = system.time(resGE <- gather.evaluated.ecc(parameters))
     
     
+    cat("\n\n############################################")
+    cat("\n# RUN: Gather Info Clusters                  #")
+    cat("\n##############################################\n\n")
+    timeInfo = system.time(resGE <- gather.info.clusters(parameters))
+    
+    
     cat("\n\n##############################################")
       cat("\n# RUN: Save Runtime                          #")
       cat("\n##############################################\n\n")
-    Runtime = rbind(timeBuild,
-                    timeSplit,
-                    timeAvalia,
-                    timeGather)
+    Runtime = rbind(timeBuild, timeSplit, timeAvalia,
+                    timeGather, timeInfo)
     setwd(parameters$Folders$folderTested)
     write.csv(Runtime, paste(parameters$Dataset.Name,
                              "-test-runtime-ecc.csv", sep=""),
@@ -164,6 +175,7 @@ executa <- function(parameters){
     cat("\n# RUN: build and test partitions             #")
     cat("\n##############################################\n\n")
     timeBuild = system.time(resBT <- build.clus(parameters))
+    
    
     cat("\n\n##############################################")
     cat("\n# RUN: Matrix Confusion                      #")
@@ -183,13 +195,17 @@ executa <- function(parameters){
     timeGather = system.time(resGE <- gather.evaluated.clus(parameters))
     
     
+    cat("\n\n############################################")
+    cat("\n# RUN: Gather Info Clusters                  #")
+    cat("\n##############################################\n\n")
+    timeInfo = system.time(resGE <- gather.info.clusters(parameters))
+    
+    
     cat("\n\n##############################################")
     cat("\n# RUN: Save Runtime                          #")
     cat("\n##############################################\n\n")
-    Runtime = rbind(timeBuild,
-                    timeSplit,
-                    timeAvalia,
-                    timeGather)
+    Runtime = rbind(timeBuild, timeSplit, timeAvalia,
+                    timeGather, timeInfo)
     setwd(parameters$Folders$folderTested)
     write.csv(Runtime, paste(parameters$Dataset.Name,
                              "-test-runtime-clus.csv", sep=""),

@@ -156,27 +156,27 @@ compute.labels.attributes <-function(parameters){
       
       FolderGroup = paste(FolderSplit, "/Group-", g, sep="")
       if(dir.exists(FolderGroup)==FALSE){dir.create(FolderGroup)}
-      
-      num.cluster = g
-      num.fold = f
-      
+       
       all.partitions.info.g = filter(all.partitions.info.f, group == g)
       all.total.labels.g = filter(all.total.labels.f, group == g)
       
-      num.att = parameters$Dataset.Info$Attributes + aumenta.atributos
-      att.start = parameters$Dataset.Info$AttStart
-      att.end = parameters$Dataset.Info$AttEnd + aumenta.atributos
-      label.start = parameters$Dataset.Info$LabelStart + aumenta.atributos
-      label.end = label.start + all.total.labels.g$totalLabels - 1
-      num.labels = all.total.labels.g$totalLabels
       
-      label.att = aumenta.atributos
-      
-      all.info = rbind(all.info, data.frame(num.fold, num.cluster, num.att, 
-                                            num.labels, label.att, att.start, 
-                                            att.end, label.start, label.end))
-      
-      aumenta.atributos = aumenta.atributos + num.labels
+      # num.cluster = g
+      # num.fold = f
+      # num.att = parameters$Dataset.Info$Attributes + aumenta.atributos
+      # att.start = parameters$Dataset.Info$AttStart
+      # att.end = parameters$Dataset.Info$AttEnd + aumenta.atributos
+      # label.start = parameters$Dataset.Info$LabelStart + aumenta.atributos
+      # label.end = label.start + all.total.labels.g$totalLabels - 1
+      # num.labels = all.total.labels.g$totalLabels
+      # 
+      # label.att = aumenta.atributos
+      # 
+      # all.info = rbind(all.info, data.frame(num.fold, num.cluster, num.att, 
+      #                                       num.labels, label.att, att.start, 
+      #                                       att.end, label.start, label.end))
+      # 
+      # aumenta.atributos = aumenta.atributos + num.labels
       
       g = g + 1
       
@@ -209,3 +209,26 @@ compute.labels.attributes <-function(parameters){
   return(retorno)
   
 } # fim da função
+
+
+gather.info.clusters <- function(parameters){
+  
+  todos = data.frame()
+  f = 1
+  while(f<=parameters$Number.Folds){
+    
+    Folder.Split = paste(parameters$Folders$folderTested, 
+                        "/Split-", f, sep="")
+    setwd(Folder.Split)
+    nome = paste("info-cluster-", f, ".csv", sep="")
+    arquivo = data.frame(read.csv(nome))
+    todos = rbind(todos, arquivo)
+    
+    f = f + 1
+    gc()
+  }
+  
+  setwd(parameters$Folders$folderTested)
+  write.csv(todos, "info-clusters.csv", row.names = FALSE)
+  
+}

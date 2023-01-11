@@ -111,7 +111,7 @@ while(g<=length(classificador)){
       #      file = output.file, append = TRUE)
       
       # job name
-      job_name = paste(sim[s], "-", ds$Name, sep = "")
+      job_name = paste(sim[s], "-", classificador[g], "-", ds$Name, sep = "")
       
       
       # folder_name = paste("\"/scratch/", job_name, "\"", sep = "")
@@ -129,7 +129,7 @@ while(g<=length(classificador)){
       # str = paste("~/Chains-Hybrid-Partition/Best-Partitions/", 
       #            similarity[s], sep="")
       
-      str = paste("/home/u704616/Best-Partitions", similarity[s], sep="")
+      str = paste("/home/u704616/Best-Partitions/", similarity[s], sep="")
       
       str2 = paste("Partitions_Path, ", str,  sep="")
       write(str2, file = output.file, append = TRUE)

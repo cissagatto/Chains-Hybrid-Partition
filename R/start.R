@@ -1,10 +1,10 @@
-cat("\n\n##############################################################")
-cat("\n# START SELECT BEST SILHOUETTE PARTITION                       #")
-cat("\n################################################################\n\n")
+cat("\n\n###########################################################")
+  cat("\n# START: CHAINS OF HYBRID PARTITIONS                       #")
+  cat("\n###########################################################\n\n")
 
 
 ##############################################################################
-
+# CHAINS OF HYBRID PARTITIONS                                                #
 # Copyright (C) 2022                                                         #
 #                                                                            #
 # This code is free software: you can redistribute it and/or modify it under #
@@ -16,26 +16,31 @@ cat("\n################################################################\n\n")
 # Public License for more details.                                           #
 #                                                                            #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri           #
-# Ferrandin | Federal University of Sao Carlos                               #
-# (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos | Computer Department  #
-# (DC: https://site.dc.ufscar.br/) | Program of Post Graduation in Computer  #
-# Science (PPG-CC: http://ppgcc.dc.ufscar.br/) | Bioinformatics and Machine  #
-# Learning Group (BIOMAL: http://www.biomal.ufscar.br/)                      #
+# Ferrandin | Prof. Dr. Celine Vens | PhD Felipe Nakano Kenji                #
+#                                                                            #
+# Federal University of São Carlos - UFSCar - https://www2.ufscar.br         #
+# Campus São Carlos - Computer Department - DC - https://site.dc.ufscar.br   #
+# Post Graduate Program in Computer Science - PPGCC                          # 
+# http://ppgcc.dc.ufscar.br - Bioinformatics and Machine Learning Group      #
+# BIOMAL - http://www.biomal.ufscar.br                                       #
+#                                                                            #
+# Katholieke Universiteit Leuven Campus Kulak Kortrijk Belgium               #
+# Medicine Department - https://kulak.kuleuven.be/                           #
+# https://kulak.kuleuven.be/nl/over_kulak/faculteiten/geneeskunde            #
 #                                                                            #
 ##############################################################################
 
 
-###########################################################################
-#
-###########################################################################
+##############################################################################
+# Set Workspace                                                              #
+##############################################################################
 FolderRoot = "~/Chains-Hybrid-Partition"
 FolderScripts = "~/Chains-Hybrid-Partition/R"
 
 
-###########################################################################
-#
-###########################################################################
-# LOAD LIBRARIES
+##############################################################################
+# LOAD R SCRIPTS                                                             #
+##############################################################################
 setwd(FolderScripts)
 source("libraries.R")
 
@@ -50,9 +55,9 @@ source("run.R")
 ###############################################################################
 # R Options Configuration                                                     #
 ###############################################################################
-options(java.parameters = "-Xmx64g")  # JAVA
-options(show.error.messages = TRUE)   # ERROR MESSAGES
-options(scipen=20)                    # number of places after the comma
+options(java.parameters = "-Xmx64g")  # Java Options
+options(show.error.messages = TRUE)   # Error Messages
+options(scipen=20)                    # Number of places after the comma
 
 
 
@@ -66,7 +71,7 @@ datasets <- data.frame(read.csv("datasets-original.csv"))
 
 
 ###############################################################################
-# ARGS COMMAND LINE                                                          #
+# ARGS COMMAND LINE                                                           #
 ###############################################################################
 cat("\n##########################################")
 cat("\n# START: Get arguments from command line #")
@@ -83,7 +88,9 @@ args <- commandArgs(TRUE)
 # config_file = "~/Chains-Hybrid-Partition/config-files/ecc/jaccard-3/j3-GpositiveGO.csv"
 # config_file = "~/Chains-Hybrid-Partition/config-files/clus/jaccard-3/j3-GpositiveGO.csv"
 
+
 config_file <- args[1]
+
 
 if(file.exists(config_file)==FALSE){
   cat("\n##############################################################")
@@ -98,13 +105,16 @@ if(file.exists(config_file)==FALSE){
 }
 
 
-cat("\n########################################")
-cat("\n# START: Read Parameters               #\n")
+
+cat("\n######################################################################")
+cat("\n# START: Read Parameters                                           #\n")
 config = data.frame(read.csv(config_file))
 print(config)
-cat("\n########################################\n\n")
+cat("\n##################################################################\n\n")
+
 
 parameters = list()
+
 
 # DATASET_PATH
 dataset_path = toString(config$Value[1])
@@ -153,8 +163,8 @@ ds = datasets[number_dataset,]
 parameters$Dataset.Info = ds
 
 
-cat("\n################################################################\n")
-print(ds)
+
+cat("\n#####################################################################\n")
 cat("\n# DATASET PATH: \t", dataset_path)
 cat("\n# TEMPORARY PATH: \t", folderResults)
 cat("\n# PARTITIONS PATH: \t", Partitions_Path)
@@ -163,7 +173,14 @@ cat("\n# DATASET NAME:  \t", dataset_name)
 cat("\n# NUMBER DATASET: \t", number_dataset)
 cat("\n# NUMBER X-FOLDS CROSS-VALIDATION: \t", number_folds)
 cat("\n# NUMBER CORES: \t", number_cores)
-cat("\n################################################################\n\n")
+cat("\n###################################################################\n\n")
+
+
+
+cat("\n################################################################\n")
+print(ds)
+cat("\n################################################################\n")
+
 
 
 ###############################################################################
@@ -178,10 +195,8 @@ if (dir.exists(folderResults) == FALSE) {dir.create(folderResults)}
 ###############################################################################
 cat("\n#############################")
 cat("\n# START: Get directories    #")
-cat("\n#############################\n")
+cat("\n#############################\n\n/")
 diretorios <- directories(dataset_name, folderResults, similarity)
-print(diretorios)
-cat("\n\n")
 
 
 #####################################

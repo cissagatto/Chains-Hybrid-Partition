@@ -28,13 +28,817 @@ FolderRoot = "~/Chains-Hybrid-Partition"
 FolderScripts = "~/Chains-Hybrid-Partition/R"
 
 
-
 ##############################################################################
 # FUNCTION BUILD AND TEST SELECTED HYBRID PARTITION                          #
 #   Objective                                                                #
 #   Parameters                                                               #
 ##############################################################################
 build.clus <- function(parameters){
+  
+  parameters = parameters
+  
+  f = 1
+  build.paralel.ecc <- foreach(f = 1:parameters$Number.Folds) %dopar%{
+  # while(f<=parameters$Number.Folds){
+    
+    cat("\n\n\n#===================================================#")
+    cat("\n# FOLD [", f, "]                                      #")
+    cat("\n#====================================================#\n\n\n")
+    
+    
+    ########################################################################
+    cat("\nWorkSpace")
+    FolderRoot = "~/Chains-Hybrid-Partition"
+    FolderScripts = "~/Chains-Hybrid-Partition/R"
+    
+    ########################################################################
+    cat("\nLoad Scripts")
+    setwd(FolderScripts)
+    source("utils.R")
+    
+    setwd(FolderScripts)
+    source("libraries.R")
+    
+    setwd(FolderScripts)
+    source("misc.R")
+    
+    
+    ########################################################################
+    cat("\nGetting information about clusters")
+    best.part.info = data.frame(parameters$All.Partitions$best.part.info)
+    all.partitions.info = data.frame(parameters$All.Partitions$all.partitions.info )
+    all.total.labels = data.frame(parameters$All.Partitions$all.total.labels)
+    
+    best.part.info.f = data.frame(filter(best.part.info, num.fold==f))
+    all.total.labels.f = data.frame(filter(all.total.labels, num.fold==f))
+    # build.datasets.f = data.frame(filter(parameters$Labels.Attr$all.info, num.fold==f))
+    
+    # partição específica
+    partition = data.frame(filter(all.partitions.info, num.fold==f))
+    
+    ##########################################################################
+    cat("\nCreating Folders from Best Partitions and Splits Tests")
+    
+    Folder.Best.Partition.Split = paste(parameters$Folders$folderBestPartitions, 
+                                        "/Split-", f, sep="")
+    
+    Folder.Tested.Split = paste(parameters$Folders$folderTested,
+                                "/Split-", f, sep="")
+    if(dir.create(Folder.Tested.Split)==FALSE){dir.create(Folder.Tested.Split)}
+    
+    Folder.BP = paste(parameters$Folders$folderBestPartitions, 
+                      "/", parameters$Dataset.Name, sep="")
+    
+    Folder.BPF = paste(Folder.BP, "/Split-", f, sep="")
+    
+    Folder.BPGP = paste(Folder.BPF, "/Partition-", best.part.info.f$num.part, 
+                        sep="")
+    
+    ########################################################################
+    cat("\nOpening TRAIN file")
+    train.name.file.csv = paste(parameters$Folders$folderCVTR, 
+                                "/", parameters$Dataset.Name, 
+                                "-Split-Tr-", f, ".csv", sep="")
+    train.file = data.frame(read.csv(train.name.file.csv))
+    
+    
+    #####################################################################
+    cat("\nOpening VALIDATION file")
+    val.name.file.csv = paste(parameters$Folders$folderCVVL, 
+                              "/", parameters$Dataset.Name, 
+                              "-Split-Vl-", f, ".csv", sep="")
+    val.file = data.frame(read.csv(val.name.file.csv))
+    
+    
+    ########################################################################
+    cat("\nOpening TEST file")
+    test.name.file.csv = paste(parameters$Folders$folderCVTS,
+                               "/", parameters$Dataset.Name, 
+                               "-Split-Ts-", f, ".csv", sep="")
+    test.file = data.frame(read.csv(test.name.file.csv))
+    
+    
+    ########################################################################
+    cat("\nJoint Train and Validation")
+    train.file.final = rbind(train.file, val.file)
+    
+    #######################################################################
+    cat("\nGetting the instance space for train and test sets")
+    arquivo.ts.att = test.file[, parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+    arquivo.tr.att = train.file.final[, parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+    
+    cat("\nGetting the Y TRUE for train and test sets")
+    ts.labels.true = test.file[, parameters$Dataset.Info$LabelStart:parameters$Dataset.Info$LabelEnd]
+    tr.labels.true = train.file.final[, parameters$Dataset.Info$LabelStart:parameters$Dataset.Info$LabelEnd]
+    
+    fold = c(0)
+    cluster = c(0)
+    labels.per.cluster = c(0)
+    attr.start = c(0)
+    attr.end = c(0)
+    new.attr.end = c(0)
+    lab.att.start = c(0)
+    lab.att.end = c(0)
+    label.start = c(0)
+    label.end = c(0)
+    label.as.attr = c(0)
+    all.info.clusters = data.frame(fold, cluster, labels.per.cluster,
+                                   attr.start, attr.end, 
+                                   new.attr.end, 
+                                   lab.att.start, lab.att.end, 
+                                   label.start, label.end,
+                                   label.as.attr)
+    
+    
+    ##############################################################
+    # DO PRIMEIRO ATÉ O ÚLTIMO CLUSTER FAÇA
+    g = 1
+    while(g<=best.part.info.f$num.group){
+      
+      cat("\n\n\t#================================================#")
+      cat("\n\t# CLUSTER [", g, "]                              #")
+      cat("\n\t#================================================#\n\n")
+      
+      #########################################################################
+      cat("\n\tCreating folder")
+      Folder.Test.Cluster = paste(Folder.Tested.Split, "/Group-", g, sep="")
+      if(dir.exists(Folder.Test.Cluster)== FALSE){dir.create(Folder.Test.Cluster)}
+      
+      #########################################################################
+      cat("\n\tSpecific Cluster")
+      all.total.labels.g = data.frame(filter(all.total.labels.f, group == g))
+      #build.datasets.g = data.frame(filter(build.datasets.f, num.cluster == g))
+      
+      cluster.specific = data.frame(filter(partition, group == g))
+      cluster = cluster.specific$group
+      labels = cluster.specific$label
+      
+      cat("\n\n\t#==============================================#")
+      cat("\n\t# LABELS [", all.total.labels.g$totalLabels, "] #" )
+      cat("\n\t#==============================================#\n\n")
+      
+      #########################################################################
+      # se este for o cluster de número 1 então não tem labels para serem
+      # agregados, apenas rodar normamente - mas se for composto por um 
+      # único rótulo, deve ser executado o binary relevance
+      if(g==1){
+        
+        ################################################################
+        # BUILDING TRAIN THE DATASET                                   #
+        # Por ser o primeiro cluster não precisa adicionar rótulos de  #
+        # outros clusters                                              #
+        ################################################################
+        
+        cat("\n\tTRAIN: Build Cluster")
+        train.attributes = train.file.final[parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+        train.classes = select(train.file.final, cluster.specific$label)
+        train.dataset = cbind(train.attributes, train.classes)
+        
+        ################################################################
+        cat("\n\tSaving info from cluster")
+        
+        fold = f
+        cluster = g
+        attr.start = 1
+        attr.end = ncol(train.attributes) 
+        new.attr.end = attr.end
+        lab.att.start = 0
+        lab.att.end = 0
+        label.start = attr.end + 1
+        label.end = ncol(train.dataset)
+        labels.per.cluster = ncol(train.classes)
+        label.as.attr = 0
+        
+        info.cluster = data.frame(fold, cluster, labels.per.cluster,
+                                  attr.start, attr.end, 
+                                  new.attr.end, 
+                                  lab.att.start, lab.att.end, 
+                                  label.start, label.end,
+                                  label.as.attr)
+        
+        all.info.clusters = rbind(all.info.clusters, info.cluster)
+        
+        ################################################################
+        
+        cat("\n\tTRAIN: Save Cluster as CSV")
+        train.name.cluster.csv = paste(Folder.Test.Cluster, "/", 
+                                       parameters$Dataset.Name, "-split-tr-", 
+                                       f, "-group-", g, ".csv", sep="")
+        write.csv(train.dataset, train.name.cluster.csv, row.names = FALSE)
+        
+        cat("\n\tTRAIN: Convert CSV to ARFF and Convert Numeric to Binary")
+        train.name.cluster.arff = paste(Folder.Test.Cluster, "/", 
+                                        parameters$Dataset.Name, 
+                                        "-split-tr-", f, "-group-", g,
+                                        ".arff", sep="")
+        arg.csv = train.name.cluster.csv
+        arg.arff = train.name.cluster.arff
+        arg.targets = paste(info.cluster$label.start, "-", 
+                            info.cluster$label.end, sep="")
+        str.convert = paste("java -jar ", parameters$Folders$folderUtils,
+                            "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
+                            arg.targets, sep="")
+        cat("\n")
+        print(system(str.convert))
+        cat("\n")
+        
+        cat("\n\tTRAIN: Verify and correct {0} and {1}")
+        str.train = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg.arff, sep="")
+        cat("\n")
+        print(system(str.train))
+        cat("\n")
+        
+        cat("\n\tTRAIN: Deleting CSV file\n")
+        setwd(Folder.Test.Cluster)
+        unlink(train.name.cluster.csv)
+        
+        
+        ################################################################
+        # BUILDING TEST THE DATASET                                    #
+        ################################################################
+        
+        cat("\n\tTEST: Build Cluster")
+        test.attributes = test.file[parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+        test.classes = select(test.file, cluster.specific$label)
+        test.dataset = cbind(test.attributes, test.classes)
+        
+        cat("\n\tTEST: Getting Y True")
+        setwd(Folder.Test.Cluster)
+        write.csv(test.classes, "y_true.csv", row.names = FALSE)
+        
+        cat("\n\tTEST: Save Cluster as CSV")
+        test.name.cluster.csv = paste(Folder.Test.Cluster, "/", 
+                                      parameters$Dataset.Name, 
+                                      "-split-ts-", f, "-group-", g, 
+                                      ".csv", sep="")
+        write.csv(test.dataset, test.name.cluster.csv, row.names = FALSE)
+        
+        cat("\n\tTEST: Convert CSV to ARFF")
+        test.name.cluster.arff = paste(Folder.Test.Cluster, "/", 
+                                       parameters$Dataset.Name, 
+                                       "-split-ts-", f, "-group-", 
+                                       g, ".arff", sep="")
+        arg.csv = test.name.cluster.csv
+        arg.arff = test.name.cluster.arff
+        arg.targets = paste(info.cluster$label.start, "-", 
+                            info.cluster$label.end, sep="")
+        str.convert = paste("java -jar ", parameters$Folders$folderUtils,
+                            "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
+                            arg.targets, sep="")
+        cat("\n")
+        print(system(str.convert))
+        cat("\n")
+        
+        cat("\n\tTEST: Verify and correct {0} and {1}")
+        str.test = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg.arff, sep="")
+        cat("\n")
+        print(system(str.test))
+        cat("\n")
+        
+        cat("\n\tTEST: Deleting CSV file\n")
+        setwd(Folder.Test.Cluster)
+        unlink(test.name.cluster.csv)
+        
+        
+        #####################################################################
+        #cat("\nCreating .s file for clus")
+        if(info.cluster$label.start == info.cluster$label.end){
+          
+          nome_config = paste(parameters$Dataset.Name, "-split-", f, "-group-",
+                              g, ".s", sep="")
+          sink(nome_config, type = "output")
+          
+          cat("[General]")
+          cat("\nCompatibility = MLJ08")
+          
+          cat("\n\n[Data]")
+          cat(paste("\nFile = ", train.name.cluster.arff, sep=""))
+          cat(paste("\nTestSet = ", test.name.cluster.arff, sep=""))
+          
+          cat("\n\n[Attributes]")
+          cat("\nReduceMemoryNominalAttrs = yes")
+          
+          cat("\n\n[Attributes]")
+          cat(paste("\nTarget = ", info.cluster$label.end, sep=""))
+          cat("\nWeights = 1")
+          
+          cat("\n")
+          cat("\n[Tree]")
+          cat("\nHeuristic = VarianceReduction")
+          cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
+          
+          cat("\n\n[Model]")
+          cat("\nMinimalWeight = 5.0")
+          
+          cat("\n\n[Output]")
+          cat("\nWritePredictions = {Test}")
+          cat("\n")
+          sink()
+          
+          ###################################################################
+          cat("\nExecute CLUS: ", g , "\n")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
+          str = paste("java -jar ", parameters$Folders$folderUtils,
+                      "/Clus.jar ", nome_config2, sep="")
+          print(system(str))
+          cat("\n")
+          
+        } else {
+          
+          nome_config = paste(parameters$Dataset.Name, "-split-", f, "-group-",
+                              g, ".s", sep="")
+          sink(nome_config, type = "output")
+          
+          cat("[General]")
+          cat("\nCompatibility = MLJ08")
+          
+          cat("\n\n[Data]")
+          cat(paste("\nFile = ", train.name.cluster.arff, sep=""))
+          cat(paste("\nTestSet = ", test.name.cluster.arff, sep=""))
+          
+          cat("\n\n[Attributes]")
+          cat("\nReduceMemoryNominalAttrs = yes")
+          
+          cat("\n\n[Attributes]")
+          cat(paste("\nTarget = ", info.cluster$label.start, "-",  
+                    info.cluster$label.end, sep=""))
+          cat("\nWeights = 1")
+          
+          cat("\n")
+          cat("\n[Tree]")
+          cat("\nHeuristic = VarianceReduction")
+          cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
+          
+          cat("\n\n[Model]")
+          cat("\nMinimalWeight = 5.0")
+          
+          cat("\n\n[Output]")
+          cat("\nWritePredictions = {Test}")
+          cat("\n")
+          sink()
+          
+          cat("\nExecute CLUS: ", g , "\n")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
+          str = paste("java -jar ", parameters$Folders$folderUtils,
+                      "/Clus.jar ", nome_config2, sep="")
+          print(system(str))
+          cat("\n")
+          
+        }
+        
+        ##################################################################
+        #cat("\n\nOpen predictions")
+        nomeDoArquivo = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name,
+                              "-split-", f,"-group-", g,
+                              ".test.pred.arff", sep="")
+        predicoes = data.frame(foreign::read.arff(nomeDoArquivo))
+        
+        
+        #####################################################################
+        #cat("\nS\nPLIT PREDICTIS")
+        if(info.cluster$label.start == info.cluster$label.end){
+          #cat("\n\nOnly one label in this group")
+          
+          ###################################################################
+          #cat("\n\nSave Y_true")
+          setwd(Folder.Test.Cluster)
+          classes = data.frame(predicoes[,1])
+          names(classes) = colnames(predicoes)[1]
+          write.csv(classes, "y_true.csv", row.names = FALSE)
+          
+          #################################################################
+          #cat("\n\nSave Y_true")
+          rot = paste("Pruned.p.", colnames(predicoes)[1], sep="")
+          pred = data.frame(predicoes[,rot])
+          names(pred) = colnames(predicoes)[1]
+          setwd(Folder.Test.Cluster)
+          write.csv(pred, "y_pred.csv", row.names = FALSE)
+          
+          ####################################################################
+          rotulos = c(colnames(classes))
+          n_r = length(rotulos)
+          gc()
+          
+        } else {
+          
+          ##############################################################
+          #cat("\n\nMore than one label in this group")
+          comeco = 1+(info.cluster$label.end - info.cluster$label.start)
+          
+          
+          ####################################################################
+          cat("\n\nSave Y_true")
+          classes = data.frame(predicoes[,1:comeco])
+          setwd(Folder.Test.Cluster)
+          write.csv(classes, "y_true.csv", row.names = FALSE)
+          
+          
+          ##################################################################
+          cat("\n\nSave Y_true")
+          rotulos = c(colnames(classes))
+          n_r = length(rotulos)
+          nomeColuna = c()
+          t = 1
+          while(t <= n_r){
+            nomeColuna[t] = paste("Pruned.p.", rotulos[t], sep="")
+            t = t + 1
+            gc()
+          }
+          pred = data.frame(predicoes[nomeColuna])
+          names(pred) = rotulos
+          setwd(Folder.Test.Cluster)
+          write.csv(pred, "y_pred.csv", row.names = FALSE)
+          gc()
+        } # FIM DO ELSE
+        
+        # deleting files
+        um = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".model", sep="")
+        dois = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".s", sep="")
+        tres = paste(parameters$Dataset.Name, "-split-tr-", f, "-group-", g, ".arff", sep="")
+        quatro = paste(parameters$Dataset.Name, "-split-ts-", f, "-group-", g, ".arff", sep="")
+        sete = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".out", sep="")
+        oito = paste("Variance_RHE_1.csv")
+        
+        setwd(Folder.Test.Cluster)
+        unlink(um, recursive = TRUE)
+        unlink(dois, recursive = TRUE)
+        # unlink(tres, recursive = TRUE)
+        # unlink(quatro, recursive = TRUE)
+        unlink(sete, recursive = TRUE)
+        unlink(oito, recursive = TRUE)
+        
+        rm(info.cluster)
+        
+        
+      } else {
+        
+        # cat("\n\n\t#=================================#")
+        #  cat("\n\t# SECOND AND SO ON CLUSTERS       #")
+        #  cat("\n\t#=================================#\n")
+        
+        ################################################################
+        # BUILDING TRAIN THE DATASET                                   #
+        # Como este é o segundo cluster, então tem que adicionar os    #
+        # rótulos do cluster anterior como atributos                   #
+        ################################################################
+        
+        cat("\n\tGetting Label-Atrributes")
+        nome = paste(Folder.Tested.Split, "/label-att-", g, ".csv", sep="")
+        lab.att.config = data.frame(read.csv(nome))
+        
+        cat("\n\tTRAIN: Build Cluster")
+        train.attributes.original = train.file.final[parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+        
+        cat("\n\tTRAIN: selecting label-atrributes with atrributes")
+        labels.att = select(train.file.final, lab.att.config$label) 
+        
+        cat("\n\tTRAIN: joing label-atrributes with atrributes")
+        train.attributes = cbind(train.attributes.original, labels.att)
+        
+        cat("\n\tTRAIN: getting classes")
+        train.classes = select(train.file.final, cluster.specific$label)
+        
+        cat("\n\tTRAIN: build the final train dataset")
+        train.dataset = cbind(train.attributes, train.classes)
+        
+        cat("\n\tTRAIN: Save Cluster")
+        train.name.cluster.csv = paste(Folder.Test.Cluster, "/", 
+                                       parameters$Dataset.Name, "-split-tr-", 
+                                       f, "-group-", g, ".csv", sep="")
+        write.csv(train.dataset, train.name.cluster.csv, row.names = FALSE)
+        
+        
+        ################################################################
+        fold = f
+        cluster = g
+        attr.start = 1
+        attr.end = ncol(train.attributes.original)
+        new.attr.end = ncol(train.attributes)
+        lab.att.start = 1 + attr.end
+        lab.att.end = new.attr.end
+        label.start = 1 + new.attr.end
+        label.end = ncol(train.dataset)
+        labels.per.cluster = ncol(train.classes)
+        label.as.attr = ncol(labels.att)
+        
+        info.cluster = data.frame(fold, cluster, labels.per.cluster,
+                                  attr.start, attr.end, new.attr.end, 
+                                  lab.att.start, lab.att.end, 
+                                  label.start, label.end, 
+                                  label.as.attr)
+        
+        all.info.clusters = rbind(all.info.clusters, info.cluster)
+        
+        
+        ################################################################
+        
+        cat("\n\tTRAIN: Convert CSV to ARFF and Convert Numeric in to Binary")
+        train.name.cluster.arff = paste(Folder.Test.Cluster, "/", 
+                                        parameters$Dataset.Name, "-split-tr-", 
+                                        f, "-group-", g, ".arff", sep="")
+        arg.csv = train.name.cluster.csv
+        arg.arff = train.name.cluster.arff
+        arg.targets = paste(info.cluster$lab.att.start, "-", label.end, sep="")
+        str.convert = paste("java -jar ", parameters$Folders$folderUtils,
+                            "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
+                            arg.targets, sep="")
+        cat("\n")
+        print(system(str.convert))
+        cat("\n")
+        
+        cat("\n\tTRAIN: Verify and correct {0} and {1} ", g , "\n")
+        str.train = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg.arff, sep="")
+        cat("\n")
+        print(system(str.train))
+        cat("\n")
+        
+        cat("\n\tDeleting CSV file")
+        setwd(Folder.Test.Cluster)
+        unlink(train.name.cluster.csv)
+        
+        
+        ################################################################
+        # BUILDING TEST THE DATASET                                    #
+        ################################################################
+        
+        preds.as.att = data.frame(apagar=c(0))
+        i = 2
+        while(i<=all.total.labels.g$group){
+          b = i - 1
+          # cat("\n\tCluster Preds: ", b)
+          Folder.Up.Group = paste(Folder.Tested.Split, "/Group-", b, sep="")
+          preds = data.frame(read.csv(paste(Folder.Up.Group, "/y_pred.csv", sep=""))) 
+          preds.as.att = cbind(preds.as.att, preds)
+          i = i + 1
+          gc(0)
+        }
+        
+        ###################################################################
+        # Se o número de colunas do resultado das predições for igual a 2 #
+        # então significa que só há UM RÓTULO para ser adicionado         #
+        ###################################################################
+        if(ncol(preds.as.att)==2){ 
+          cat("\n\tTEST: Only one prediction")
+          nomes = colnames(preds.as.att)
+          
+          test.attributes = test.file[parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+          nomes.2 = colnames(test.attributes)
+          
+          test.attributes = cbind(test.attributes, preds.as.att[,2])
+          ultima = ncol(test.attributes)
+          names(test.attributes)[ultima] = nomes[2]
+          
+          test.classes = select(test.file, cluster.specific$label)
+          test.dataset = cbind(test.attributes, test.classes)
+          end.test.dataset = ncol(test.dataset)
+          
+        } else {
+          cat("\n\tTEST: More than one prediction")
+          preds.as.att = preds.as.att[,-1]
+          test.attributes = test.file[parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+          test.attributes = cbind(test.attributes, preds.as.att)
+          test.classes = select(test.file, cluster.specific$label)
+          test.dataset = cbind(test.attributes, test.classes)
+          end.test.dataset = ncol(test.dataset)
+        }
+        
+        cat("\n\tTEST: Saving Y True")
+        setwd(Folder.Test.Cluster)
+        write.csv(test.classes, "y_true.csv", row.names = FALSE)
+        
+        cat("\n\tTEST: Save Cluster as CSV")
+        test.name.cluster.csv = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
+                                      "-split-ts-", f, "-group-", g, ".csv", sep="")
+        write.csv(test.dataset, test.name.cluster.csv, row.names = FALSE)
+        
+        cat("\n\tTEST: Convert CSV to ARFF ", g , "\n")
+        test.name.cluster.arff = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
+                                       "-split-ts-", f, "-group-", g, ".arff", sep="")
+        arg.csv = test.name.cluster.csv
+        arg.arff = test.name.cluster.arff
+        arg.targets = paste(info.cluster$lab.att.start, "-", label.end, sep="")
+        str.convert = paste("java -jar ", parameters$Folders$folderUtils,
+                            "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
+                            arg.targets, sep="")
+        
+        cat("\n")
+        print(system(str.convert))
+        cat("\n")
+        
+        cat("\n\tTEST: Verify and correct {0} and {1} ", g , "\n")
+        str.test = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg.arff, sep="")
+        cat("\n")
+        print(system(str.test))
+        cat("\n")
+        
+        cat("\n\tTEST: Deleting CSV file")
+        setwd(Folder.Test.Cluster)
+        unlink(test.name.cluster.csv)
+        
+        
+        #####################################################################
+        #cat("\nCreating .s file for clus")
+        if(info.cluster$label.start == info.cluster$label.end){
+          
+          nome_config = paste(parameters$Dataset.Name, "-split-", f, "-group-",
+                              g, ".s", sep="")
+          sink(nome_config, type = "output")
+          
+          cat("[General]")
+          cat("\nCompatibility = MLJ08")
+          
+          cat("\n\n[Data]")
+          cat(paste("\nFile = ", train.name.cluster.arff, sep=""))
+          cat(paste("\nTestSet = ", test.name.cluster.arff, sep=""))
+          
+          cat("\n\n[Attributes]")
+          cat("\nReduceMemoryNominalAttrs = yes")
+          
+          cat("\n\n[Attributes]")
+          cat(paste("\nTarget = ", info.cluster$label.end, sep=""))
+          cat("\nWeights = 1")
+          
+          cat("\n")
+          cat("\n[Tree]")
+          cat("\nHeuristic = VarianceReduction")
+          cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
+          
+          cat("\n\n[Model]")
+          cat("\nMinimalWeight = 5.0")
+          
+          cat("\n\n[Output]")
+          cat("\nWritePredictions = {Test}")
+          cat("\n")
+          sink()
+          
+          ###################################################################
+          cat("\nExecute CLUS: ", g , "\n")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
+          str = paste("java -jar ", parameters$Folders$folderUtils,
+                      "/Clus.jar ", nome_config2, sep="")
+          print(system(str))
+          cat("\n")
+          
+        } else {
+          
+          nome_config = paste(parameters$Dataset.Name, "-split-", f, "-group-",
+                              g, ".s", sep="")
+          sink(nome_config, type = "output")
+          
+          cat("[General]")
+          cat("\nCompatibility = MLJ08")
+          
+          cat("\n\n[Data]")
+          cat(paste("\nFile = ", train.name.cluster.arff, sep=""))
+          cat(paste("\nTestSet = ", test.name.cluster.arff, sep=""))
+          
+          cat("\n\n[Attributes]")
+          cat("\nReduceMemoryNominalAttrs = yes")
+          
+          cat("\n\n[Attributes]")
+          cat(paste("\nTarget = ", info.cluster$label.start, "-", 
+                    info.cluster$label.end, sep=""))
+          cat("\nWeights = 1")
+          
+          cat("\n")
+          cat("\n[Tree]")
+          cat("\nHeuristic = VarianceReduction")
+          cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
+          
+          cat("\n\n[Model]")
+          cat("\nMinimalWeight = 5.0")
+          
+          cat("\n\n[Output]")
+          cat("\nWritePredictions = {Test}")
+          cat("\n")
+          sink()
+          
+          cat("\nExecute CLUS: ", g , "\n")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
+          str = paste("java -jar ", parameters$Folders$folderUtils,
+                      "/Clus.jar ", nome_config2, sep="")
+          print(system(str))
+          cat("\n")
+          
+        }
+        
+        ##################################################################
+        #cat("\n\nOpen predictions")
+        nomeDoArquivo = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name,
+                              "-split-", f,"-group-", g,
+                              ".test.pred.arff", sep="")
+        predicoes = data.frame(foreign::read.arff(nomeDoArquivo))
+        
+        
+        #####################################################################
+        #cat("\nS\nPLIT PREDICTIS")
+        if(all.total.labels.g$totalLabels==1){
+          #cat("\n\nOnly one label in this group")
+          
+          ###################################################################
+          #cat("\n\nSave Y_true")
+          setwd(Folder.Test.Cluster)
+          classes = data.frame(predicoes[,1])
+          names(classes) = colnames(predicoes)[1]
+          write.csv(classes, "y_true.csv", row.names = FALSE)
+          
+          #################################################################
+          #cat("\n\nSave Y_true")
+          rot = paste("Pruned.p.", colnames(predicoes)[1], sep="")
+          pred = data.frame(predicoes[,rot])
+          names(pred) = colnames(predicoes)[1]
+          setwd(Folder.Test.Cluster)
+          write.csv(pred, "y_pred.csv", row.names = FALSE)
+          
+          ####################################################################
+          rotulos = c(colnames(classes))
+          n_r = length(rotulos)
+          gc()
+          
+        } else {
+          
+          ##############################################################
+          #cat("\n\nMore than one label in this group")
+          comeco = 1+(info.cluster$label.end - info.cluster$label.start)
+          
+          
+          ####################################################################
+          cat("\n\nSave Y_true")
+          classes = data.frame(predicoes[,1:comeco])
+          setwd(Folder.Test.Cluster)
+          write.csv(classes, "y_true.csv", row.names = FALSE)
+          
+          
+          ##################################################################
+          cat("\n\nSave Y_true")
+          rotulos = c(colnames(classes))
+          n_r = length(rotulos)
+          nomeColuna = c()
+          t = 1
+          while(t <= n_r){
+            nomeColuna[t] = paste("Pruned.p.", rotulos[t], sep="")
+            t = t + 1
+            gc()
+          }
+          pred = data.frame(predicoes[nomeColuna])
+          names(pred) = rotulos
+          setwd(Folder.Test.Cluster)
+          write.csv(pred, "y_pred.csv", row.names = FALSE)
+          gc()
+        } # FIM DO ELSE
+        
+        # deleting files
+        um = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".model", sep="")
+        dois = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".s", sep="")
+        tres = paste(parameters$Dataset.Name, "-split-tr-", f, "-group-", g, ".arff", sep="")
+        quatro = paste(parameters$Dataset.Name, "-split-ts-", f, "-group-", g, ".arff", sep="")
+        sete = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".out", sep="")
+        oito = paste("Variance_RHE_1.csv")
+        
+        setwd(Folder.Test.Cluster)
+        unlink(um, recursive = TRUE)
+        unlink(dois, recursive = TRUE)
+        # unlink(tres, recursive = TRUE)
+        # unlink(quatro, recursive = TRUE)
+        unlink(sete, recursive = TRUE)
+        unlink(oito, recursive = TRUE)
+        
+        
+        
+        cat("\n")
+        
+      }
+      
+      setwd(Folder.Tested.Split)
+      name = paste("info-cluster-", f, ".csv", sep="")
+      write.csv(all.info.clusters[-1,], name, row.names = FALSE)
+      
+      g = g + 1
+      gc()
+      cat("\n")
+    } # fim do grupo
+    
+    # f = f + 1
+    gc()
+    cat("\n")
+  } # fim do for each
+  
+  gc()
+  cat("\n##################################################")
+  cat("\n# TEST: Build and Test Hybrid Partitions End     #")
+  cat("\n##################################################")
+  cat("\n\n\n\n")
+}
+
+
+
+
+##############################################################################
+# FUNCTION BUILD AND TEST SELECTED HYBRID PARTITION                          #
+#   Objective                                                                #
+#   Parameters                                                               #
+##############################################################################
+build.clus.old <- function(parameters){
   
   parameters = parameters
   
@@ -175,8 +979,8 @@ build.clus <- function(parameters){
       
       #########################################################################
       cat("\ncreating folder")
-      Folder.Test.Group = paste(Folder.Tested.Split, "/Group-", g, sep="")
-      if(dir.exists(Folder.Test.Group)== FALSE){dir.create(Folder.Test.Group)}
+      Folder.Test.Cluster = paste(Folder.Tested.Split, "/Group-", g, sep="")
+      if(dir.exists(Folder.Test.Cluster)== FALSE){dir.create(Folder.Test.Cluster)}
       
       #########################################################################
       cat("\nPegando informações do grupo específico")
@@ -201,7 +1005,7 @@ build.clus <- function(parameters){
         
         #####################################################################
         cat("\nTRAIN: Save Group", g, "\n")
-        train_name_group_csv = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        train_name_group_csv = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                      "-split-tr-", f, "-group-", g, ".csv", sep="")
         write.csv(train_group, train_name_group_csv, row.names = FALSE)
         
@@ -211,13 +1015,13 @@ build.clus <- function(parameters){
         start = parameters$Dataset.Info$LabelStart
         end = fim_tr
         ifr = data.frame(start, end)
-        #setwd(Folder.Test.Group)
+        #setwd(Folder.Test.Cluster)
         #write.csv(ifr, "inicioFimRotulos.csv", row.names = FALSE)
         
         
         ####################################################################
         cat("\nTRAIN: Convert Train CSV to ARFF ", g , "\n")
-        train_name_group_arff = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        train_name_group_arff = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                       "-split-tr-", f, "-group-", g, ".arff", sep="")
         arg1Tr = train_name_group_csv
         arg2Tr = train_name_group_arff
@@ -235,7 +1039,7 @@ build.clus <- function(parameters){
         
         ##############################################
         cat("\nApagando arquivo csv")
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         unlink(train_name_group_csv)
         
         
@@ -249,13 +1053,13 @@ build.clus <- function(parameters){
         
         ################################################################
         cat("\nSALVANDO OS Y TRUE")
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         write.csv(test_classes, "y_true.csv", row.names = FALSE)
         
         
         #####################################################################
         cat("\nTRAIN: Save Group", g, "\n")
-        test_name_group_csv = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        test_name_group_csv = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                     "-split-ts-", f, "-group-", g, ".csv", sep="")
         write.csv(test_group, test_name_group_csv, row.names = FALSE)
         
@@ -265,13 +1069,13 @@ build.clus <- function(parameters){
         start = parameters$Dataset.Info$LabelStart
         end = fim_ts
         ifr = data.frame(start, end)
-        #setwd(Folder.Test.Group)
+        #setwd(Folder.Test.Cluster)
         #write.csv(ifr, "inicioFimRotulos.csv", row.names = FALSE)
         
         
         ####################################################################
         cat("\nTRAIN: Convert Train CSV to ARFF ", g , "\n")
-        test_name_group_arff = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        test_name_group_arff = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                      "-split-ts-", f, "-group-", g, ".arff", sep="")
         arg1Ts = test_name_group_csv
         arg2Ts = test_name_group_arff
@@ -290,7 +1094,7 @@ build.clus <- function(parameters){
         
         ##############################################
         cat("\nApagando arquivo csv")
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         unlink(test_name_group_csv)
         
         
@@ -331,7 +1135,7 @@ build.clus <- function(parameters){
           
           ###################################################################
           cat("\nExecute CLUS: ", g , "\n")
-          nome_config2 = paste(Folder.Test.Group, "/", nome_config, sep="")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
           str = paste("java -jar ", parameters$Folders$folderUtils,
                       "/Clus.jar ", nome_config2, sep="")
           print(system(str))
@@ -371,7 +1175,7 @@ build.clus <- function(parameters){
           sink()
           
           cat("\nExecute CLUS: ", g , "\n")
-          nome_config2 = paste(Folder.Test.Group, "/", nome_config, sep="")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
           str = paste("java -jar ", parameters$Folders$folderUtils,
                       "/Clus.jar ", nome_config2, sep="")
           print(system(str))
@@ -381,7 +1185,7 @@ build.clus <- function(parameters){
         
         ##################################################################
         #cat("\n\nOpen predictions")
-        nomeDoArquivo = paste(Folder.Test.Group, "/", parameters$Dataset.Name,
+        nomeDoArquivo = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name,
                               "-split-", f,"-group-", g,
                               ".test.pred.arff", sep="")
         predicoes = data.frame(foreign::read.arff(nomeDoArquivo))
@@ -394,7 +1198,7 @@ build.clus <- function(parameters){
           
           ###################################################################
           #cat("\n\nSave Y_true")
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           classes = data.frame(predicoes[,1])
           names(classes) = colnames(predicoes)[1]
           write.csv(classes, "y_true.csv", row.names = FALSE)
@@ -404,7 +1208,7 @@ build.clus <- function(parameters){
           rot = paste("Pruned.p.", colnames(predicoes)[1], sep="")
           pred = data.frame(predicoes[,rot])
           names(pred) = colnames(predicoes)[1]
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           write.csv(pred, "y_pred.csv", row.names = FALSE)
           
           ####################################################################
@@ -422,7 +1226,7 @@ build.clus <- function(parameters){
           ####################################################################
           cat("\n\nSave Y_true")
           classes = data.frame(predicoes[,1:comeco])
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           write.csv(classes, "y_true.csv", row.names = FALSE)
           
           
@@ -439,7 +1243,7 @@ build.clus <- function(parameters){
           }
           pred = data.frame(predicoes[nomeColuna])
           names(pred) = rotulos
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           write.csv(pred, "y_pred.csv", row.names = FALSE)
           gc()
         } # FIM DO ELSE
@@ -452,11 +1256,11 @@ build.clus <- function(parameters){
         sete = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".out", sep="")
         oito = paste("Variance_RHE_1.csv")
         
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         unlink(um, recursive = TRUE)
         unlink(dois, recursive = TRUE)
-        unlink(tres, recursive = TRUE)
-        unlink(quatro, recursive = TRUE)
+        # unlink(tres, recursive = TRUE)
+        # unlink(quatro, recursive = TRUE)
         unlink(sete, recursive = TRUE)
         unlink(oito, recursive = TRUE)
         
@@ -496,20 +1300,20 @@ build.clus <- function(parameters){
         start.2 = parameters$Dataset.Info$AttEnd + 1
         end.2 = fim.group
         ifr = data.frame(start.2, end.2)
-        # setwd(Folder.Test.Group)
+        # setwd(Folder.Test.Cluster)
         # write.csv(ifr, "inicioFimRotulos.csv", row.names = FALSE)
         
         
         #####################################################################
         cat("\nTRAIN:: Save Group", g, "\n")
-        train_name_group_csv = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        train_name_group_csv = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                      "-split-tr-", f, "-group-", g, ".csv", sep="")
         write.csv(train_group, train_name_group_csv, row.names = FALSE)
         
         
         ####################################################################
         cat("\nTRAIN: Convert Train CSV to ARFF ", g , "\n")
-        train_name_group_arff = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        train_name_group_arff = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                       "-split-tr-", f, "-group-", g, ".arff", sep="")
         arg1Tr = train_name_group_csv
         arg2Tr = train_name_group_arff
@@ -529,7 +1333,7 @@ build.clus <- function(parameters){
         
         ##############################################
         cat("\nApagando arquivo csv")
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         unlink(train_name_group_csv)
         
         ##############################################
@@ -543,7 +1347,7 @@ build.clus <- function(parameters){
           preds.as.att = cbind(preds.as.att, preds)
           i = i + 1
           gc(0)
-        }
+        }/
         
         if(ncol(preds.as.att)==2){ 
           
@@ -577,20 +1381,20 @@ build.clus <- function(parameters){
         
         ################################################################
         cat("\nTEST: SALVANDO OS Y TRUE")
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         write.csv(test_classes, "y_true.csv", row.names = FALSE)
         
         
         #####################################################################
         cat("\nTEST: Save Group", g, "\n")
-        test_name_group_csv = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        test_name_group_csv = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                     "-split-ts-", f, "-group-", g, ".csv", sep="")
         write.csv(test_group, test_name_group_csv, row.names = FALSE)
         
         
         ####################################################################
         cat("\nTEST: Convert Train CSV to ARFF ", g , "\n")
-        test_name_group_arff = paste(Folder.Test.Group, "/", parameters$Dataset.Name, 
+        test_name_group_arff = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
                                      "-split-ts-", f, "-group-", g, ".arff", sep="")
         arg1Ts = test_name_group_csv
         arg2Ts = test_name_group_arff
@@ -610,7 +1414,7 @@ build.clus <- function(parameters){
         
         ##############################################
         cat("\nTEST: Apagando arquivo csv")
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         unlink(test_name_group_csv)
         
         
@@ -651,7 +1455,7 @@ build.clus <- function(parameters){
           
           ###################################################################
           cat("\nExecute CLUS: ", g , "\n")
-          nome_config2 = paste(Folder.Test.Group, "/", nome_config, sep="")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
           str = paste("java -jar ", parameters$Folders$folderUtils,
                       "/Clus.jar ", nome_config2, sep="")
           print(system(str))
@@ -692,7 +1496,7 @@ build.clus <- function(parameters){
           sink()
           
           cat("\nExecute CLUS: ", g , "\n")
-          nome_config2 = paste(Folder.Test.Group, "/", nome_config, sep="")
+          nome_config2 = paste(Folder.Test.Cluster, "/", nome_config, sep="")
           str = paste("java -jar ", parameters$Folders$folderUtils,
                       "/Clus.jar ", nome_config2, sep="")
           print(system(str))
@@ -702,7 +1506,7 @@ build.clus <- function(parameters){
         
         ##################################################################
         #cat("\n\nOpen predictions")
-        nomeDoArquivo = paste(Folder.Test.Group, "/", parameters$Dataset.Name,
+        nomeDoArquivo = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name,
                               "-split-", f,"-group-", g,
                               ".test.pred.arff", sep="")
         predicoes = data.frame(foreign::read.arff(nomeDoArquivo))
@@ -715,7 +1519,7 @@ build.clus <- function(parameters){
           
           ###################################################################
           #cat("\n\nSave Y_true")
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           classes = data.frame(predicoes[,1])
           names(classes) = colnames(predicoes)[1]
           write.csv(classes, "y_true.csv", row.names = FALSE)
@@ -725,7 +1529,7 @@ build.clus <- function(parameters){
           rot = paste("Pruned.p.", colnames(predicoes)[1], sep="")
           pred = data.frame(predicoes[,rot])
           names(pred) = colnames(predicoes)[1]
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           write.csv(pred, "y_pred.csv", row.names = FALSE)
           
           ####################################################################
@@ -743,7 +1547,7 @@ build.clus <- function(parameters){
           ####################################################################
           cat("\n\nSave Y_true")
           classes = data.frame(predicoes[,1:comeco])
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           write.csv(classes, "y_true.csv", row.names = FALSE)
           
           
@@ -760,7 +1564,7 @@ build.clus <- function(parameters){
           }
           pred = data.frame(predicoes[nomeColuna])
           names(pred) = rotulos
-          setwd(Folder.Test.Group)
+          setwd(Folder.Test.Cluster)
           write.csv(pred, "y_pred.csv", row.names = FALSE)
           gc()
         } # FIM DO ELSE
@@ -773,7 +1577,7 @@ build.clus <- function(parameters){
         sete = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".out", sep="")
         oito = paste("Variance_RHE_1.csv")
         
-        setwd(Folder.Test.Group)
+        setwd(Folder.Test.Cluster)
         unlink(um, recursive = TRUE)
         unlink(dois, recursive = TRUE)
         unlink(tres, recursive = TRUE)

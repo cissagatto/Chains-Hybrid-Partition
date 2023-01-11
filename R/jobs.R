@@ -98,7 +98,7 @@ while(g<=length(classificador)){
       sh_name = paste(FolderSimilarity, "/", name, ".sh", sep="")
       
       # "/dev/shm/j2-3s-bbc1000"
-      folder_name = paste("/scratch",  classificador[g], "-", job_name, sep = "")
+      folder_name = paste("/scratch/",  classificador[g], "-", job_name, sep = "")
       
       cat("\n\n#===============================================")
       cat("\n# Classifier \t\t|", classificador[g])
@@ -138,7 +138,7 @@ while(g<=length(classificador)){
       
       # amount of node memory you want to use
       # comment this line if you are using -mem=0
-      write("#SBATCH --mem-per-cpu=30GB", file = output.file, append = TRUE)
+      write("#SBATCH --mem-per-cpu=35GB", file = output.file, append = TRUE)
       
       # email to receive notification
       write("#SBATCH --mail-user=elainegatto@estudante.ufscar.br",
@@ -262,4 +262,3 @@ while(g<=length(classificador)){
 # Please, any errors, contact us: elainececiliagatto@gmail.com                #
 # Thank you very much!                                                        #                                #
 ###############################################################################
-/
