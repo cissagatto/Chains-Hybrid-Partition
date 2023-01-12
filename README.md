@@ -1,1 +1,158 @@
 # Chains of Hybrid Partition
+This code is part of my PhD research at PPG-CC/DC/UFSCar in colaboration withKatholieke Universiteit Leuven Campus Kulak Kortrijk Belgium.
+
+We use the same principles of Ensemble of Classifiers Chains but applied to a Chain of data Partitions.
+
+## How to cite 
+@misc{Gatto2023, author = {Gatto, E. C.}, title = {Chains of Hybrid Partitions}, year = {2023}, publisher = {GitHub}, journal = {GitHub repository}, howpublished = {\url{https://github.com/cissagatto/Chains-Hybrid-Partition}}}
+
+## Source Code
+This code source is composed of the project R to be used in RStudio IDE and also the following scripts R:
+
+1. libraries.R
+2. utils.R
+3. misc.R
+4. testClus.R
+5. testECC.R
+6. run.R
+7. start.R
+8. config_files.R
+9. jobs.R
+
+
+## Preparing your experiment
+
+### STEP 1
+A file called _datasets-original.csv_ must be in the *root project directory*. This file is used to read information about the datasets and they are used in the code. We have 90 multilabel datasets in this _.csv_ file. If you want to use another dataset, please, add the following information about the dataset in the file:
+
+
+| Parameter    | Status    | Description                                           |
+|------------- |-----------|-------------------------------------------------------|
+| Id           | mandatory | Integer number to identify the dataset                |
+| Name         | mandatory | Dataset name (please follow the benchmark)            |
+| Domain       | optional  | Dataset domain                                        |
+| Instances    | mandatory | Total number of dataset instances                     |
+| Attributes   | mandatory | Total number of dataset attributes                    |
+| Labels       | mandatory | Total number of labels in the label space             |
+| Inputs       | mandatory | Total number of dataset input attributes              |
+| Cardinality  | optional  | **                                                    |
+| Density      | optional  | **                                                    |
+| Labelsets    | optional  | **                                                    |
+| Single       | optional  | **                                                    |
+| Max.freq     | optional  | **                                                    |
+| Mean.IR      | optional  | **                                                    | 
+| Scumble      | optional  | **                                                    | 
+| TCS          | optional  | **                                                    | 
+| AttStart     | mandatory | Column number where the attribute space begins*       | 
+| AttEnd       | mandatory | Column number where the attribute space ends          |
+| LabelStart   | mandatory | Column number where the label space begins            |
+| LabelEnd     | mandatory | Column number where the label space ends              |
+| Distinct     | optional  |                                                       |
+| xn           | mandatory | Value for Dimension X of the Kohonen map              | 
+| yn           | mandatory | Value for Dimension Y of the Kohonen map              |
+| gridn        | mandatory | X times Y value. Kohonen's map must be square         |
+| max.neigbors | mandatory | The maximum number of neighbors is given by LABELS -1 |
+
+
+* Because it is the first column the number is always 1.
+** [Click here](https://link.springer.com/book/10.1007/978-3-319-41111-8) to get explanation about each property.
+
+
+### STEP 2
+To run this experiment you need the _X-Fold Cross-Validation_ files and they must be compacted in **tar.gz** format. You can download these files, with 10-folds, ready for multilabel dataset by clicking [here](https://www.4shared.com/directory/ypgzwzjq/datasets-cross-validation.html). For a new dataset, in addition to including it in the **datasets-original.csv** file, you must also run this code [here](https://github.com/cissagatto/crossvalidationmultilabel). In the repository in question you will find all the instructions needed to generate the files in the format required for this experiment. The **tar.gz** file can be placed on any directory on your computer or server. The absolute path of the file should be passed as a parameter in the configuration file that will be read by **start.R** script. The dataset folds will be loaded from there.
+
+### STEP 3
+You need to have installed all the R packages required to execute this code on your machine or server. Check out which are needed in the file *libraries.R*. This code does not provide any type of automatic package installation!
+
+### STEP 4
+You will need the previously generated partitions by this [code](https://github.com/cissagatto/Best-Partition-Silhouette). You must use the results generated from the *OUTPUT* directory in those source code. They must be compressed into a *TAR.GZ* file and placed in a directory on your computer. The absolute path of this directory must be passed as a parameter in the configuration file. Please see the example in the _BEST-PARTITIONS_ directory in this source code.
+
+### STEP 5
+You can use the Conda environment that I created to perform this experiment. Below are the links to download the files.
+
+| [download txt](https://www.4shared.com/s/fUCVTl13zea) | [download yml](https://www.4shared.com/s/f8nOZyxj9iq) | [download yaml](https://www.4shared.com/s/fk5Io4faLiq) |
+
+Try to use the command below to extract the environment to your computer:
+
+```
+conda env create -file AmbienteTeste.yaml
+```
+
+See more information about Conda environments [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) 
+
+### STEP 6
+To run this code you will need a configuration file saved in *csv* format and with the following information:
+
+| Config          | Value                                                                         | 
+|-----------------|-------------------------------------------------------------------------------| 
+| Dataset_Path    | Absolute path to the directory where the dataset's tar.gz is stored           |
+| Temporary_Path  | Absolute path to the directory where temporary processing will be performed*  |
+| Partitions_Path | Absolute path to the directory where the best partitions are                  |
+| classifier      | Mut be "ecc"" or "clus"                                                       |
+| similarity      | Choose which one to run: jaccard, rogers, random1 and random2                 |
+| dataset_name    | Dataset name according to *datasets-original.csv* file                        |
+| number_dataset  | Dataset number according to *datasets-original.csv* file                      |
+| number_folds    | Number of folds used in cross validation                                      |
+| number_cores    | Number of cores for parallel processing                                       |
+
+* Use directorys like */dev/shm*, *tmp* or *scratch* here.
+
+*Example:*
+<img src="" width="300">
+
+You can save configuration files wherever you want. The absolute path will be passed as a command line argument.
+
+## Directory Strucutre
+<img src="" width="300">
+
+## Software Requirements
+This code was develop in RStudio Version 2022.07.2+576 "Spotted Wakerobin" Release (e7373ef832b49b2a9b88162cfe7eac5f22c40b34, 2022-09-06) for Ubuntu Bionic Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36 
+
+## Hardware Requirements
+This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line (number_cores). If number_cores = 1 the code will run sequentially. In our experiments, we used 10 cores. For reproducibility, we recommend that you also use ten cores. This code was tested with the birds dataset in the following machine:
+
+*System:*
+Kernel: 5.4.0-136-generic x86_64 bits: 64 compiler: gcc v: 9.4.0. Desktop: Cinnamon 5.2.7 wm: muffin dm: LightDM. Distro: Linux Mint 20.3 Una. Base: Ubuntu 20.04 focal 
+
+*Machine:*
+Type: Laptop System: LENOVO product: 82CG v: IdeaPad Gaming 3 15IMH05 serial: <filter> | Chassis: type: 10 v: IdeaPad Gaming 3 15IMH05 serial: <filter> | Mobo: LENOVO model: LNVNB161216 v: SDK0R33126 WIN serial: <filter> UEFI: LENOVO | v: EGCN33WW date: 12/24/2020 
+
+*CPU:*
+Topology: 6-Core model: Intel Core i7-10750H bits: 64 type: MT MCP arch: N/A | L2 cache: 12.0 MiB | flags: avx avx2 lm nx pae sse sse2 sse3 sse4_1 sse4_2 ssse3 vmx bogomips: 62399 | Speed: 4287 MHz min/max: 800/5000 MHz Core speeds (MHz): 1: 4264 2: 4240 3: 4254 | 4: 4240 5: 4273 6: 4275 7: 4267 8: 4223 9: 4275 10: 4226 11: 4264 12:4282
+
+Then the experiment was executed in a cluster at UFSCar.
+
+Important: we used the CLUS and ECC from MULAN in this experiment. This implies generating all physical ARFF training, validating, and testing files for each of the generated partitions. Our code generates the partitions first in memory and then saves them to the HD. However, to avoid memory problems, immediately after saving to HD, the files are validated (or tested) and then deleted. Even so, make sure you have enough space on your HD and RAM for this procedure.
+
+
+## Results
+The results stored in the directory _OUTPUT_.
+
+## RUN
+To run the code, open the terminal, enter the *~/Chains-Hybrid-Partition/R* directory, and type
+
+```
+Rscript start.R [absolute_path_to_config_file]
+```
+
+Example:
+
+```
+Rscript start.R "~/Chains-Hybrid-Partition/R/config-files/ecc/jaccard-3/j3-GpositiveGO.csv"
+```
+
+## DOWNLOAD RESULTS
+[Click here]
+
+## Acknowledgment
+This study is financed in part by the Conselho Nacional de Desenvolvimento Científico e Tecnológico - Brasil (CNPQ) - Process number 200371/2022-3.
+
+## Links
+
+| [Post-Graduate Program in Computer Science](http://ppgcc.dc.ufscar.br/pt-br) | [Computer Department](https://site.dc.ufscar.br/) |  [Biomal](http://www.biomal.ufscar.br/) | [CNPQ](https://www.gov.br/cnpq/pt-br) | [Ku Leuven](https://kulak.kuleuven.be/) | [Embarcados](https://www.embarcados.com.br/author/cissa/) | [Read Prensa](https://prensa.li/@cissa.gatto/) | [Linkedin Company](https://www.linkedin.com/company/27241216) | [Linkedin Profile](https://www.linkedin.com/in/elainececiliagatto/) | [Instagram](https://www.instagram.com/cissagatto) | [Facebook](https://www.facebook.com/cissagatto) | [Twitter](https://twitter.com/cissagatto) | [Twitch](https://www.twitch.tv/cissagatto) | [Youtube](https://www.youtube.com/CissaGatto) |
+
+## Report Error
+Please contact me: elainececiliagatto@gmail.com
+
+# Thanks
+

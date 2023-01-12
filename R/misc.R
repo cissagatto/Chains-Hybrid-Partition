@@ -223,6 +223,7 @@ gather.info.clusters <- function(parameters){
     nome = paste("info-cluster-", f, ".csv", sep="")
     arquivo = data.frame(read.csv(nome))
     todos = rbind(todos, arquivo)
+    unlink(nome)
     
     f = f + 1
     gc()

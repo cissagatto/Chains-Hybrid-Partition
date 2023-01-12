@@ -1,0 +1,10 @@
+Config, Value
+Dataset_Path, ~/Chains-Hybrid-Partition/Datasets
+Temporary_Path, /dev/shm/j3-ecc-flags
+Partitions_Path, ~/Chains-Hybrid-Partition/Best-Partitions/jaccard-3
+classifier, ecc
+similarity, jaccard-3
+dataset_name, flags
+number_dataset, 34
+number_folds, 10
+number_cores, 1

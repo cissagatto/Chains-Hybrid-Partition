@@ -43,6 +43,7 @@ library("mldr", quietly = TRUE)
 library("utiml", quietly = TRUE)
 library("foreach", quietly = TRUE)
 library("doParallel", quietly = TRUE)
+library(caTools)
 
 
 #############################################################################

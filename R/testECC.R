@@ -185,7 +185,7 @@ build.ecc <- function(parameters){
       #########################################################################
       # se este for o cluster de número 1 então não tem labels para serem
       # agregados, apenas rodar normamente - mas se for composto por um 
-      # único rótulo, deve ser executado o binary relevance
+      # único rótulo, deve ser executado o J48
       if(g==1){
         
         ################################################################
@@ -214,13 +214,13 @@ build.ecc <- function(parameters){
         labels.per.cluster = ncol(train.classes)
         label.as.attr = 0
         
-        all.info.clusters = data.frame(fold, cluster, labels.per.cluster,
+        info.clusters = data.frame(fold, cluster, labels.per.cluster,
                                        attr.start, attr.end, new.attr.end, 
                                        lab.att.start, lab.att.end, 
                                        label.start, label.end,
                                        label.as.attr)
         
-        all.info.clusters = rbind(all.info.clusters, info.cluster)
+        all.info.clusters = rbind(all.info.clusters, info.clusters)
         
         ################################################################
         
@@ -237,8 +237,8 @@ build.ecc <- function(parameters){
                                         "-1.arff", sep="")
         arg.csv = train.name.cluster.csv
         arg.arff = train.name.cluster.arff
-        arg.targets = paste(info.cluster$label.start, "-", 
-                            info.cluster$label.end, sep="")
+        arg.targets = paste(info.clusters$label.start, "-", 
+                            info.clusters$label.end, sep="")
         str.convert = paste("java -jar ", parameters$Folders$folderUtils,
                             "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
                             arg.targets, sep="")
@@ -284,8 +284,8 @@ build.ecc <- function(parameters){
                                        g, "-1.arff", sep="")
         arg.csv = test.name.cluster.csv
         arg.arff = test.name.cluster.arff
-        arg.targets = paste(info.cluster$label.start, "-", 
-                            info.cluster$label.end, sep="")
+        arg.targets = paste(info.clusters$label.start, "-", 
+                            info.clusters$label.end, sep="")
         str.convert = paste("java -jar ", parameters$Folders$folderUtils,
                             "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
                             arg.targets, sep="")
@@ -311,45 +311,27 @@ build.ecc <- function(parameters){
         #######################################################################
         if(all.total.labels.g$totalLabels==1){
           
-          cat("\n\n\t#=========================================#")
-            cat("\n\t# Cluster ", g, " has only one label      #")
-            cat("\n\t#=========================================#\n\n")
-          
-          cat("\n\tGenerate label index.dataset for whole dataset")
-          index.dataset = c(seq(parameters$Dataset.Info$LabelStart,
-                                parameters$Dataset.Info$LabelEnd, by=1))
-          
-          cat("\n\tTransform train in mldr for train and test sets")
-          ds.train = mldr_from_dataframe(train.file.final, labelIndices = index.dataset)
-          br.train = mldr_transform(ds.train, type = "BR")
-          ds.test = mldr_from_dataframe(test.file, labelIndices = index.dataset)
-          br.test = mldr_transform(ds.test, type = "BR")
-          
-          cat("\n\tTrain BR")
-          br.model = br(ds.train, "C5.0", seed=123)
-          
-          cat("\n\tTest BR")
-          br.predict <- predict(br.model, ds.test)
-          
-          cat("\n\tApply threshold")
-          br.threshold <- scut_threshold(br.predict, ds.test)
-          new.threshold.br <- data.frame(as.matrix(fixed_threshold(br.predict, br.threshold)))
-          
-          cat("\n\tSaving all predctions")
-          br.predict = data.frame(as.matrix(br.predict))
-          predicted = cbind(br.predict, new.threshold.br)
-          setwd(Folder.Tested.Split)
-          write.csv(predicted, "br-pred.csv", row.names = FALSE)
-          
-          cat("\n\tSaving Y Pred")
-          y_pred = select(new.threshold.br, cluster.specific$label)
-          setwd(Folder.Test.Cluster)
-          write.csv(y_pred, "y_pred.csv", row.names = FALSE)
+          cat("\n\n\t#========================================#")
+            cat("\n\t# Cluster ", g, " has only one label.    #")
+            cat("\n\t# Running J48 from RWeka.                #")
+            cat("\n\t#========================================#\n\n")
           
           cat("\n\tSaving Y True")
           y.true = select(ts.labels.true, cluster.specific$label)
           setwd(Folder.Test.Cluster)
           write.csv(y.true, "y_true.csv", row.names = FALSE)
+          
+          # J48 TRAIN
+          result.J48 <- J48(as.factor(train.dataset[,info.clusters$label.end]) ~ ., data = train.dataset)
+          
+          # J48 TEST
+          predicts <- data.frame(predict(result.J48, newdata = test.dataset))
+          colnames(predicts) = cluster.specific$label
+          
+          cat("\n\tSaving Y Pred")
+          setwd(Folder.Test.Cluster)
+          write.csv(predicts, "y_pred.csv", row.names = FALSE)
+          
           
         } else {
           
@@ -367,10 +349,10 @@ build.ecc <- function(parameters){
           cat("\n\tTRAIN: Transform into MLDR")
           str.train = paste(parameters$Dataset.Name, "-split-tr-", f, "-group-", g, 
                             "-weka.filters.unsupervised.attribute.NumericToNominal-R", 
-                            info.cluster$label.start, "-", info.cluster$label.end, sep="")
+                            info.clusters$label.start, "-", info.clusters$label.end, sep="")
           
           train.cluster.mldr <- mldr::mldr_from_dataframe(dataframe = train.dataset, 
-                                                          labelIndices = seq(info.cluster$label.start, info.cluster$label.end, by=1), 
+                                                          labelIndices = seq(info.clusters$label.start, info.clusters$label.end, by=1), 
                                                           name = str.train)
           
           train.xml.name = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
@@ -382,10 +364,10 @@ build.ecc <- function(parameters){
           cat("\n\tTEST: Transform into MLDR")
           str.test = paste(parameters$Dataset.Name, "-split-ts-", f, "-group-", g, 
                         "-weka.filters.unsupervised.attribute.NumericToNominal-R", 
-                        info.cluster$label.start, "-", info.cluster$label.end, sep="")
+                        info.clusters$label.start, "-", info.clusters$label.end, sep="")
           
           test.cluster.mldr <- mldr::mldr_from_dataframe(dataframe = test.dataset, 
-                                                         labelIndices = seq(info.cluster$label.start, info.cluster$label.end, by=1), 
+                                                         labelIndices = seq(info.clusters$label.start, info.clusters$label.end, by=1), 
                                                          name = str.test)
           
           test.xml.name = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
@@ -500,7 +482,7 @@ build.ecc <- function(parameters){
           
         }
         
-        rm(info.cluster)
+        # rm(info.clusters)
         
         # setwd(Folder.Test.Cluster)
         # unlink("out.csv")
@@ -563,13 +545,13 @@ build.ecc <- function(parameters){
         labels.per.cluster = ncol(train.classes)
         label.as.attr = ncol(labels.att)
         
-        all.info.clusters = data.frame(fold, cluster, labels.per.cluster,
+        info.clusters = data.frame(fold, cluster, labels.per.cluster,
                                        attr.start, attr.end, new.attr.end, 
                                        lab.att.start, lab.att.end, 
                                        label.start, label.end,
                                        label.as.attr)
         
-        all.info.clusters = rbind(all.info.clusters, info.cluster)
+        all.info.clusters = rbind(all.info.clusters, info.clusters)
         
         
         ################################################################
@@ -580,7 +562,7 @@ build.ecc <- function(parameters){
                                         f, "-group-", g, "-1.arff", sep="")
         arg.csv = train.name.cluster.csv
         arg.arff = train.name.cluster.arff
-        arg.targets = paste(info.cluster$lab.att.start, "-", label.end, sep="")
+        arg.targets = paste(info.clusters$lab.att.start, "-", label.end, sep="")
         str.convert = paste("java -jar ", parameters$Folders$folderUtils,
                             "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
                             arg.targets, sep="")
@@ -658,7 +640,7 @@ build.ecc <- function(parameters){
                                      "-split-ts-", f, "-group-", g, "-1.arff", sep="")
         arg.csv = test.name.cluster.csv
         arg.arff = test.name.cluster.arff
-        arg.targets = paste(info.cluster$lab.att.start, "-", label.end, sep="")
+        arg.targets = paste(info.clusters$lab.att.start, "-", label.end, sep="")
         str.convert = paste("java -jar ", parameters$Folders$folderUtils,
                             "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
                             arg.targets, sep="")
@@ -685,59 +667,28 @@ build.ecc <- function(parameters){
         ###################################################################
         if(all.total.labels.g$totalLabels==1){
           
-          cat("\n\n\t#=========================================#")
-            cat("\n\t# Cluster [", g, "] has only one label    #")
-            cat("\n\t#=========================================#\n\n")
+          cat("\n\n\t#========================================#")
+          cat("\n\t# Cluster ", g, " has only one label.    #")
+          cat("\n\t# Running J48 from RWeka.                #")
+          cat("\n\t#========================================#\n\n")
           
           cat("\n\tSaving Y True")
-          y.true = select(test.dataset, cluster.specific$label)
+          y.true = select(ts.labels.true, cluster.specific$label)
           setwd(Folder.Test.Cluster)
           write.csv(y.true, "y_true.csv", row.names = FALSE)
           
-          cat("\n\tChanging names labels attributes")
-          new.name.label = paste(lab.att.config$label, "-attr", sep="")
-          train.attributes.2 = train.attributes
-          test.attributes.2 = test.attributes
-          names(train.attributes.2)[info.cluster$new.attr.end] = new.name.label
-          names(test.attributes.2)[info.cluster$new.attr.end] = new.name.label
+          cat("\nJ48 TRAIN")
+          result.J48 <- J48(as.factor(train.dataset[,info.clusters$label.end]) ~ ., 
+                            data = train.dataset)
           
-          # gather attributes labels and all labels because BR only works
-          # with all labels in the data
-          cat("\n\tJoining labels attributes")
-          train.dataset = cbind(train.attributes.2, tr.labels.true)
-          test.dataset = cbind(test.attributes.2, ts.labels.true)
-          end.label = ncol(train.dataset)
-          
-          # Generate label index.dataset for whole dataset
-          cat("\n\tGenerating label index")
-          index.dataset = seq(info.cluster$label.start, end.label)
-          
-          cat("\n\tTransform train in mldr for train and test sets")
-          ds.train = mldr_from_dataframe(train.dataset, labelIndices = index.dataset)
-          br.train = mldr_transform(ds.train, type = "BR")
-          ds.test = mldr_from_dataframe(test.dataset, labelIndices = index.dataset)
-          br.test = mldr_transform(ds.test, type = "BR")
-          
-          cat("\n\tBR TRAIN")
-          br.model = br(ds.train, "C5.0", seed=123)
-          
-          cat("\n\tBR TEST")
-          br.predict <- predict(br.model, ds.test)
-          
-          cat("\n\tApply threshold")
-          br.threshold <- scut_threshold(br.predict, ds.test)
-          new.threshold.br <- data.frame(as.matrix(fixed_threshold(br.predict, br.threshold)))
-          
-          cat("\n\tSaving all predctions")
-          br.predict = data.frame(as.matrix(br.predict))
-          predicted = cbind(br.predict, new.threshold.br)
-          setwd(Folder.Test.Cluster)
-          write.csv(predicted, "br-pred.csv", row.names = FALSE)
+          cat("\nJ48 TEST")
+          predicts <- data.frame(predict(result.J48, newdata = test.dataset))
+          colnames(predicts) = cluster.specific$label
           
           cat("\n\tSaving Y Pred")
-          y_pred = select(new.threshold.br, cluster.specific$label)
           setwd(Folder.Test.Cluster)
-          write.csv(y_pred, "y_pred.csv", row.names = FALSE)
+          write.csv(predicts, "y_pred.csv", row.names = FALSE)
+          
           
         } else {
           
@@ -749,10 +700,10 @@ build.ecc <- function(parameters){
           cat("\n\tTRAIN: Transform into MLD")
           str.train = paste(parameters$Dataset.Name, "-split-tr-", f, "-group-", g, 
                         "-weka.filters.unsupervised.attribute.NumericToNominal-R", 
-                        info.cluster$label.start, "-", info.cluster$label.end, sep="")
+                        info.clusters$label.start, "-", info.clusters$label.end, sep="")
           
           train.cluster.mldr <- mldr::mldr_from_dataframe(dataframe = train.dataset, 
-                                                          labelIndices = seq(info.cluster$label.start, info.cluster$label.end), 
+                                                          labelIndices = seq(info.clusters$label.start, info.clusters$label.end), 
                                                           name = str.train)
           
           train.xml.name = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
@@ -764,10 +715,10 @@ build.ecc <- function(parameters){
           cat("\n\tTEST: Transform into mldr")
           str.test = paste(parameters$Dataset.Name, "-split-ts-", f, "-group-", g, 
                         "-weka.filters.unsupervised.attribute.NumericToNominal-R", 
-                        info.cluster$label.start, "-", info.cluster$label.end, sep="")
+                        info.clusters$label.start, "-", info.clusters$label.end, sep="")
           
           test.cluster.mldr <- mldr::mldr_from_dataframe(dataframe = test.dataset, 
-                                                         labelIndices = seq(info.cluster$label.start, info.cluster$label.end), 
+                                                         labelIndices = seq(info.clusters$label.start, info.clusters$label.end), 
                                                          name = str.test)
           
           test.xml.name = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
@@ -879,11 +830,11 @@ build.ecc <- function(parameters){
           
         }
         
-        rm(info.cluster)
+      #   rm(info.clusters)
         
         
         # setwd(Folder.Test.Cluster)
-        # #unlink("out.csv")
+        # unlink("out.csv")
         # unlink("pred_out.csv")
         # unlink("inicioFimRotulos.csv")
         # unlink(paste(parameters$Dataset.Name,"-split-ts-",f,"-group-",g,".xml", sep=""))
@@ -984,6 +935,10 @@ gather.predicts.ecc <- function(parameters){
       FolderTestGroup = paste(Folder.Tested.Split, "/Group-", g, sep="")
       
       #######################################################
+      nome = paste(Folder.Tested.Split, "/label-att-", g, ".csv", sep="")
+      unlink(nome)
+      
+      #######################################################
       #cat("\nSpecific Group: ", g, "\n")
       cluster.specific = filter(partition, group == g)
       
@@ -999,9 +954,9 @@ gather.predicts.ecc <- function(parameters){
       y_pred_gr = data.frame(read.csv("y_pred.csv"))
       y_pred = cbind(y_pred, y_pred_gr)
       
-      #cat("\n\nDeleting files")
-      unlink("y_true.csv", recursive = TRUE)
-      unlink("y_predict.csv", recursive = TRUE)
+      # cat("\n\nDeleting files")
+      # unlink("y_true.csv", recursive = TRUE)
+      # unlink("y_pred.csv", recursive = TRUE)
       unlink("inicioFimRotulos.csv", recursive = TRUE)
       
       g = g + 1
@@ -1114,8 +1069,8 @@ evaluate.ecc <- function(parameters){
     
     cat("\nDelete files")
     setwd(Folder.Tested.Split)
-    unlink("y_true.csv", recursive = TRUE)
-    unlink("y_predict.csv", recursive = TRUE)
+    # unlink("y_true.csv", recursive = TRUE)
+    # unlink("y_predict.csv", recursive = TRUE)
     
     #f = f + 1
     gc()
