@@ -47,7 +47,7 @@ A file called _datasets-original.csv_ must be in the *root project directory*. T
 | AttEnd       | mandatory | Column number where the attribute space ends          |
 | LabelStart   | mandatory | Column number where the label space begins            |
 | LabelEnd     | mandatory | Column number where the label space ends              |
-| Distinct     | optional  |                                                       |
+| Distinct     | optional  | **                                                    |
 | xn           | mandatory | Value for Dimension X of the Kohonen map              | 
 | yn           | mandatory | Value for Dimension Y of the Kohonen map              |
 | gridn        | mandatory | X times Y value. Kohonen's map must be square         |
@@ -55,6 +55,7 @@ A file called _datasets-original.csv_ must be in the *root project directory*. T
 
 
 * Because it is the first column the number is always 1.
+
 ** [Click here](https://link.springer.com/book/10.1007/978-3-319-41111-8) to get explanation about each property.
 
 
@@ -88,7 +89,7 @@ To run this code you will need a configuration file saved in *csv* format and wi
 | Dataset_Path    | Absolute path to the directory where the dataset's tar.gz is stored           |
 | Temporary_Path  | Absolute path to the directory where temporary processing will be performed*  |
 | Partitions_Path | Absolute path to the directory where the best partitions are                  |
-| classifier      | Mut be "ecc"" or "clus"                                                       |
+| classifier      | Must be "ecc"" or "clus"                                                       |
 | similarity      | Choose which one to run: jaccard, rogers, random1 and random2                 |
 | dataset_name    | Dataset name according to *datasets-original.csv* file                        |
 | number_dataset  | Dataset number according to *datasets-original.csv* file                      |
@@ -97,27 +98,26 @@ To run this code you will need a configuration file saved in *csv* format and wi
 
 * Use directorys like */dev/shm*, *tmp* or *scratch* here.
 
-*Example:*
-<img src="" width="300">
-
 You can save configuration files wherever you want. The absolute path will be passed as a command line argument.
 
-## Directory Strucutre
-<img src="" width="300">
 
 ## Software Requirements
+
 This code was develop in RStudio Version 2022.07.2+576 "Spotted Wakerobin" Release (e7373ef832b49b2a9b88162cfe7eac5f22c40b34, 2022-09-06) for Ubuntu Bionic Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36 
 
 ## Hardware Requirements
 This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line (number_cores). If number_cores = 1 the code will run sequentially. In our experiments, we used 10 cores. For reproducibility, we recommend that you also use ten cores. This code was tested with the birds dataset in the following machine:
 
 *System:*
+
 Kernel: 5.4.0-136-generic x86_64 bits: 64 compiler: gcc v: 9.4.0. Desktop: Cinnamon 5.2.7 wm: muffin dm: LightDM. Distro: Linux Mint 20.3 Una. Base: Ubuntu 20.04 focal 
 
 *Machine:*
-Type: Laptop System: LENOVO product: 82CG v: IdeaPad Gaming 3 15IMH05 serial: <filter> | Chassis: type: 10 v: IdeaPad Gaming 3 15IMH05 serial: <filter> | Mobo: LENOVO model: LNVNB161216 v: SDK0R33126 WIN serial: <filter> UEFI: LENOVO | v: EGCN33WW date: 12/24/2020 
+
+Type: Laptop System: LENOVO product: 82CG v: IdeaPad Gaming 3 15IMH05 serial: <filter> Chassis: type: 10 v: IdeaPad Gaming 3 15IMH05 serial: <filter> Mobo: LENOVO model: LNVNB161216 v: SDK0R33126 WIN serial: <filter> UEFI: LENOVO v: EGCN33WW date: 12/24/2020 
 
 *CPU:*
+
 Topology: 6-Core model: Intel Core i7-10750H bits: 64 type: MT MCP arch: N/A | L2 cache: 12.0 MiB | flags: avx avx2 lm nx pae sse sse2 sse3 sse4_1 sse4_2 ssse3 vmx bogomips: 62399 | Speed: 4287 MHz min/max: 800/5000 MHz Core speeds (MHz): 1: 4264 2: 4240 3: 4254 | 4: 4240 5: 4273 6: 4275 7: 4267 8: 4223 9: 4275 10: 4226 11: 4264 12:4282
 
 Then the experiment was executed in a cluster at UFSCar.
