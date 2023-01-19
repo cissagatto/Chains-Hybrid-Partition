@@ -34,8 +34,10 @@ FolderScripts = "~/Chains-Hybrid-Partition/R"
 
 library("foreign", quietly = TRUE)
 library("stringr", quietly = TRUE)
-library("tidyverse", quietly = TRUE)
-library("lme4", quietly = TRUE)
+# library("tidyverse", quietly = TRUE)
+# library("lme4", quietly = TRUE)
+library("caret")
+library("dplyr", quietly = TRUE)
 library("parallel", quietly = TRUE)
 library("rJava", quietly = TRUE)
 library("RWeka", quietly = TRUE)
@@ -43,7 +45,7 @@ library("mldr", quietly = TRUE)
 library("utiml", quietly = TRUE)
 library("foreach", quietly = TRUE)
 library("doParallel", quietly = TRUE)
-library(caTools)
+library("caTools", quietly = TRUE)
 
 
 #############################################################################

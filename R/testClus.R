@@ -491,6 +491,9 @@ build.clus <- function(parameters){
         
         cat("\n\tTRAIN: selecting label-atrributes with atrributes")
         labels.att = select(train.file.final, lab.att.config$label) 
+        nomes = names(labels.att)
+        nomes.2 = paste(nomes, "-att", sep="")
+        names(labels.att) = nomes.2
         
         cat("\n\tTRAIN: joing label-atrributes with atrributes")
         train.attributes = cbind(train.attributes.original, labels.att)
@@ -573,6 +576,7 @@ build.clus <- function(parameters){
           gc(0)
         }
         
+        
         ###################################################################
         # Se o número de colunas do resultado das predições for igual a 2 #
         # então significa que só há UM RÓTULO para ser adicionado         #
@@ -596,6 +600,11 @@ build.clus <- function(parameters){
           cat("\n\tTEST: More than one prediction")
           preds.as.att = preds.as.att[,-1]
           test.attributes = test.file[parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+          
+          nomes = names(preds.as.att)
+          nomes.2 = paste(nomes, "-att", sep="")
+          names(preds.as.att) = nomes.2
+          
           test.attributes = cbind(test.attributes, preds.as.att)
           test.classes = select(test.file, cluster.specific$label)
           test.dataset = cbind(test.attributes, test.classes)

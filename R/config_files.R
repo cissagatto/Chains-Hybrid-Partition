@@ -46,15 +46,14 @@ n = nrow(datasets)
 ###############################################################################
 #
 ###############################################################################
-similarity = c("jaccard-2", "jaccard-3", "rogers-1", "rogers-2",
-               "random-1", "random-2")
-sim = c("j2", "j3", "ro1", "ro2", "ra1", "ra2")
+similarity = c("jaccard-3","rogers-2")
+sim = c("j3", "ro2")
 
 
 ###############################################################################
 #
 ###############################################################################
-classificador = c("clus", "ecc")
+pacote = c("clus", "utiml", "mulan")
 
 
 ###############################################################################
@@ -69,9 +68,9 @@ if(dir.exists(FolderCF)==FALSE){dir.create(FolderCF)}
 #
 ###############################################################################
 g = 1 
-while(g<=length(classificador)){
+while(g<=length(pacote)){
   
-  FolderClassifier = paste(FolderCF, "/", classificador[g], sep="")
+  FolderClassifier = paste(FolderCF, "/", pacote[g], sep="")
   if(dir.exists(FolderClassifier)==FALSE){dir.create(FolderClassifier)}
   
   s = 1
@@ -87,16 +86,26 @@ while(g<=length(classificador)){
       ds = datasets[d,]
       
       cat("\n\n=================================================")
-      cat("\nClassifier: \t", classificador[g])
+      cat("\nClassifier: \t", pacote[g])
       cat("\nSimilarity: \t", similarity[s])
       cat("\nDataset: \t", ds$Name)
       
-      # Confi File Name
-      file_name = paste(FolderSimilarity, "/", sim[s], 
-                        "-", ds$Name, ".csv", sep="")
+      name = paste(pacote[g], "-", sim[s], "-", ds$Name, sep="")
+      
+      temp.folder = paste("/scratch/", name, sep="")
+      
+      code.folder = paste("/scratch/", name, 
+                          "/Chains-Hybrid-Partition", sep="")
+      
+      config.name = paste(code.folder , "/", pacote[g], 
+                          "/", name,".csv", sep="")
+      
+      config.name.2 = paste(FolderSimilarity, "/", name, ".csv", sep="")
+      
+      sh.name = paste(FolderSimilarity, "/", name, ".sh", sep="")
       
       # Starts building the configuration file
-      output.file <- file(file_name, "wb")
+      output.file <- file(config.name.2, "wb")
       
       # Config file table header
       write("Config, Value",
@@ -107,47 +116,46 @@ while(g<=length(classificador)){
       write("Dataset_Path, \"/home/u704616/Datasets\"",
             file = output.file, append = TRUE)
       
-      # write("Dataset_Path, ~/Chains-Hybrid-Partition/Datasets",
+      # write("Dataset_Path, /home/elaine/Datasets",
       #      file = output.file, append = TRUE)
       
-      # job name
-      job_name = paste(sim[s], "-", classificador[g], "-", ds$Name, sep = "")
+      # write("Dataset_Path, ~/Chains-Hybrid-Partition/Datasets",
+      #     file = output.file, append = TRUE)
       
-      
-      # folder_name = paste("\"/scratch/", job_name, "\"", sep = "")
-      folder_name = paste("/scratch/", job_name, sep = "")
-      # folder_name = paste("~/tmp/", job_name, sep = "")
-      # folder_name = paste("/dev/shm/", classificador[g], "-", job_name, sep = "")
-      
+
       # Absolute path to the folder where temporary processing will be done.
       # You should use "scratch", "tmp" or "/dev/shm", it will depend on the
       # cluster model where your experiment will be run.
       
-      str1 = paste("Temporary_Path, ", folder_name, sep="")
+      str1 = paste("Temporary_Path, ", temp.folder, sep="")
       write(str1,file = output.file, append = TRUE)
       
-      # str = paste("~/Chains-Hybrid-Partition/Best-Partitions/", 
-      #            similarity[s], sep="")
-      
+      # str = paste("/home/elaine/Best-Partitions/", similarity[s], sep="")
       str = paste("/home/u704616/Best-Partitions/", similarity[s], sep="")
+      # str = paste("~/Chains-Hybrid-Partition/Best-Partitions/", 
+      #             similarity[s], sep="")
       
       str2 = paste("Partitions_Path, ", str,  sep="")
       write(str2, file = output.file, append = TRUE)
       
       
-      str4 = paste("classifier, ", classificador[g], sep="")
+      str4 = paste("classifier, ", pacote[g], sep="")
       write(str4, file = output.file, append = TRUE)
+      
       
       str5 = paste("similarity, ", similarity[s], sep="")
       write(str5, file = output.file, append = TRUE)
+      
       
       # dataset name
       str3 = paste("dataset_name, ", ds$Name, sep="")
       write(str3, file = output.file, append = TRUE)
       
+      
       # Dataset number according to "datasets-original.csv" file
       str2 = paste("number_dataset, ", ds$Id, sep="")
       write(str2, file = output.file, append = TRUE)
+      
       
       # Number used for X-Fold Cross-Validation
       write("number_folds, 10", file = output.file, append = TRUE)

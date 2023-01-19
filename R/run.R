@@ -114,9 +114,9 @@ executa <- function(parameters){
   parameters$All.Partitions = resAP
   
   
-  # cat("\n\n#####################################################")
-  #  cat("\n# RUN: Compute Label Atributes                      #")
-  #  cat("\n#####################################################\n\n")
+  cat("\n\n#####################################################")
+  cat("\n# RUN: Compute Label Atributes                      #")
+  cat("\n#####################################################\n\n")
   timeCLA = system.time(resCLA <- compute.labels.attributes(parameters))
   parameters$Labels.Attr = resCLA
   

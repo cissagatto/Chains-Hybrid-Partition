@@ -81,12 +81,12 @@ args <- commandArgs(TRUE)
 
 
 ###############################################################################
-# FIRST ARGUMENT: getting specific dataset information being processed        #
+# FIRST ARGUMENT: /getting specific dataset information being processed        #
 # from csv file                                                               #
 ###############################################################################
 
-# config_file = "~/Chains-Hybrid-Partition/config-files/ecc/jaccard-3/j3-GpositiveGO.csv"
-# config_file = "~/Chains-Hybrid-Partition/config-files/clus/jaccard-3/j3-GpositiveGO.csv"
+# config_file = "~/Chains-Hybrid-Partition/config-files/ecc/jaccard-3/ecc-j3-GpositiveGO.csv"
+# config_file = "~/Chains-Hybrid-Partition/config-files/clus/jaccard-3/clus-j3-GpositiveGO.csv"
 
 
 config_file <- args[1]
@@ -272,7 +272,7 @@ str00 = str_remove(str00, pattern = " ")
 if(file.exists(str00)==FALSE){
 
   cat("\n##########################################################################")
-  cat("\n# START: The tar.gz file for the dataset to be processed does not exist! #")
+  cat("\n# START: The tar.gz file for the partitions to be processed does not exist! #")
   cat("\n# Please pass the path of the tar.gz file in the configuration file!     #")
   cat("\n# The path entered was: ", str00, "                                      #")
   cat("\n##########################################################################\n\n")
@@ -313,6 +313,7 @@ if(file.exists(str00)==FALSE){
 }
 
 
+
 cat("\n####################################################################")
 cat("\n# START: EXECUTE                                                   #")
 cat("\n####################################################################\n\n")
@@ -342,70 +343,70 @@ print(system(paste("rm -r ", diretorios$folderBestPartitions, sep="")))
 
 
 if(parameters$classificador == "ecc"){
-  # 
-  # cat("\n####################################################################")
-  # cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
-  # cat("\n####################################################################\n\n")
-  # origem = diretorios$folderTested
-  # destino = paste("nuvem:ECC/Chains/", similarity, "/", dataset_name, sep="")
-  # comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
-  # cat("\n", comando1, "\n")
-  # a = print(system(comando1))
-  # a = as.numeric(a)
-  # if(a != 0) {
-  #   stop("Erro RCLONE")
-  #   quit("yes")
-  # }
-  
+
   cat("\n####################################################################")
-  cat("\n# Copy to root folder                                              #")
+  cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
-  
-  folderO = paste(FolderRoot, "/Output", sep="")
-  if(dir.exists(folderO)==FALSE){dir.create(folderO)}
-  
-  folderC = paste(folderO, "/Ecc", sep="")
-  if(dir.exists(folderC)==FALSE){dir.create(folderC)}
-  
-  folderS = paste(folderC, "/", similarity, sep="")
-  if(dir.exists(folderS)==FALSE){dir.create(folderS)}
-  
-  str_b <- paste("cp -r ", diretorios$folderResults, " ", folderS, sep = "")
-  print(system(str_b))
+  origem = diretorios$folderTested
+  destino = paste("nuvem:ECC/Chains/", similarity, "/", dataset_name, sep="")
+  comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
+  cat("\n", comando1, "\n")
+  a = print(system(comando1))
+  a = as.numeric(a)
+  if(a != 0) {
+    stop("Erro RCLONE")
+    quit("yes")
+  }
+
+  # cat("\n####################################################################")
+  # cat("\n# Copy to root folder                                              #")
+  # cat("\n####################################################################\n\n")
+  # 
+  # folderO = paste(FolderRoot, "/Output", sep="")
+  # if(dir.exists(folderO)==FALSE){dir.create(folderO)}
+  # 
+  # folderC = paste(folderO, "/Ecc", sep="")
+  # if(dir.exists(folderC)==FALSE){dir.create(folderC)}
+  # 
+  # folderS = paste(folderC, "/", similarity, sep="")
+  # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
+  # 
+  # str_b <- paste("cp -r ", diretorios$folderResults, " ", folderS, sep = "")
+  # print(system(str_b))
   
   
 } else {
   
   
-  # cat("\n####################################################################")
-  # cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
-  # cat("\n####################################################################\n\n")
-  # origem = diretorios$folderTested
-  # destino = paste("nuvem:Clus/Chains/", similarity, "/", dataset_name, sep="")
-  # comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
-  # cat("\n", comando1, "\n")
-  # a = print(system(comando1))
-  # a = as.numeric(a)
-  # if(a != 0) {
-  #   stop("Erro RCLONE")
-  #   quit("yes")
-  # }
-  
   cat("\n####################################################################")
-  cat("\n# Copy to root folder                                              #")
+  cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
+  origem = diretorios$folderTested
+  destino = paste("nuvem:Clus/Chains/", similarity, "/", dataset_name, sep="")
+  comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
+  cat("\n", comando1, "\n")
+  a = print(system(comando1))
+  a = as.numeric(a)
+  if(a != 0) {
+    stop("Erro RCLONE")
+    quit("yes")
+  }
   
-  folderO = paste(FolderRoot, "/Output", sep="")
-  if(dir.exists(folderO)==FALSE){dir.create(folderO)}
-  
-  folderC = paste(folderO, "/Clus", sep="")
-  if(dir.exists(folderC)==FALSE){dir.create(folderC)}
-  
-  folderS = paste(folderC, "/", similarity, sep="")
-  if(dir.exists(folderS)==FALSE){dir.create(folderS)}
-  
-  str_b <- paste("cp -r ", diretorios$folderResults, " ", folderS, sep = "")
-  print(system(str_b))
+  # cat("\n####################################################################")
+  # cat("\n# Copy to root folder                                              #")
+  # cat("\n####################################################################\n\n")
+  # 
+  # folderO = paste(FolderRoot, "/Output", sep="")
+  # if(dir.exists(folderO)==FALSE){dir.create(folderO)}
+  # 
+  # folderC = paste(folderO, "/Clus", sep="")
+  # if(dir.exists(folderC)==FALSE){dir.create(folderC)}
+  # 
+  # folderS = paste(folderC, "/", similarity, sep="")
+  # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
+  # 
+  # str_b <- paste("cp -r ", diretorios$folderResults, " ", folderS, sep = "")
+  # print(system(str_b))
 }
 
 

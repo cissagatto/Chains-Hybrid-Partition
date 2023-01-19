@@ -46,15 +46,14 @@ n = nrow(datasets)
 ###############################################################################
 #
 ###############################################################################
-similarity = c("jaccard-2", "jaccard-3", "rogers-1", "rogers-2",
-               "random-1", "random-2")
-sim = c("j2", "j3", "ro1", "ro2", "ra1", "ra2")
+similarity = c("jaccard-3", "rogers-2")
+sim = c("j3", "ro2")
 
 
 ###############################################################################
 #
 ###############################################################################
-classificador = c("clus", "ecc")
+pacote = c("clus", "mulan", "utiml")
 
 
 ###############################################################################
@@ -65,9 +64,9 @@ if(dir.exists(FolderJobs)==FALSE){dir.create(FolderJobs)}
 
 
 g = 1
-while(g<=length(classificador)){
+while(g<=length(pacote)){
   
-  FolderClassifier = paste(FolderJobs, "/", classificador[g], sep="")
+  FolderClassifier = paste(FolderJobs, "/", pacote[g], sep="")
   if(dir.exists(FolderClassifier)==FALSE){dir.create(FolderClassifier)}
   
   s = 1
@@ -86,29 +85,30 @@ while(g<=length(classificador)){
       ds = datasets[d,]
       
       FolderCF = paste(FolderRoot, "/config-files", sep="")
-      FolderCF = paste(FolderCF, "/", classificador[g], sep="")
+      FolderCF = paste(FolderCF, "/", pacote[g], sep="")
       FolderCF = paste(FolderCF, "/", similarity[s], sep="")
       
-      name = paste(sim[s], "-", ds$Name, sep="")
-      # "j2-3s-bbc1000"
-      job_name = paste(sim[s], "-", ds$Name, sep = "")
+      name = paste(pacote[g], "-", sim[s], "-", ds$Name, sep="")
       
-      config_name = paste(FolderCF, "/", name, ".csv", sep="")
+      temp.folder = paste("/scratch/", name, sep="")
       
-      sh_name = paste(FolderSimilarity, "/", name, ".sh", sep="")
+      code.folder = paste("/scratch/", name, 
+                          "/Chains-Hybrid-Partition", sep="")
+
+      config.name = paste(code.folder , "/", pacote[g], 
+                          "/", name,".csv", sep="")
       
-      # "/dev/shm/j2-3s-bbc1000"
-      folder_name = paste("/scratch/",  classificador[g], "-", job_name, sep = "")
+      sh.name = paste(FolderSimilarity, "/", name, ".sh", sep="")
       
       cat("\n\n#===============================================")
-      cat("\n# Classifier \t\t|", classificador[g])
+      cat("\n# Classifier \t\t|", pacote[g])
       cat("\n# Similarity \t\t|", similarity[s])
       cat("\n# Dataset \t\t|", ds$Name)
       cat("\n# Name \t\t\t|", name)
       cat("\n===============================================\n\n")
       
       # start writing
-      output.file <- file(sh_name, "wb")
+      output.file <- file(sh.name, "wb")
       
       # bash parameters
       write("#!/bin/bash", file = output.file)
@@ -180,58 +180,115 @@ while(g<=length(classificador)){
       
       write("", file = output.file, append = TRUE)
       write("echo DELETING THE FOLDER", file = output.file, append = TRUE)
-      str11 = paste("rm -rf ", folder_name, sep = "")
+      str11 = paste("rm -rf ", temp.folder, sep = "")
       write(str11, file = output.file, append = TRUE)
       
       
       write("", file = output.file, append = TRUE)
       write("echo CREATING THE FOLDER", file = output.file, append = TRUE)
-      str11 = paste("mkdir ", folder_name, sep = "")
+      str11 = paste("mkdir ", temp.folder, sep = "")
       write(str11, file = output.file, append = TRUE)
       
       
       write("", file = output.file, append = TRUE)
       write("echo COPYING CONDA ENVIRONMENT", file = output.file, append = TRUE)
-      str20 = paste("cp /home/u704616/miniconda3.tar.gz ", folder_name, sep ="")
+      str20 = paste("cp /home/u704616/miniconda3.tar.gz ", temp.folder, sep ="")
+      write(str20 , file = output.file, append = TRUE)
+      
+      
+      write("", file = output.file, append = TRUE)
+      write("echo COPYING CODE", file = output.file, append = TRUE)
+      str20 = paste("cp -r /home/u704616/Chains-Hybrid-Partition ", 
+                    temp.folder, sep ="")
       write(str20 , file = output.file, append = TRUE)
       
       
       write(" ", file = output.file, append = TRUE)
       write("echo UNPACKING MINICONDA", file = output.file, append = TRUE)
-      str22 = paste("tar xzf ", folder_name, "/miniconda3.tar.gz -C ",
-                    folder_name, sep = "")
+      str22 = paste("tar xzf ", temp.folder, "/miniconda3.tar.gz -C ",
+                    temp.folder, sep = "")
       write(str22 , file = output.file, append = TRUE)
       
       
       write(" ", file = output.file, append = TRUE)
       write("echo DELETING MINICONDA TAR.GZ", file = output.file, append = TRUE)
-      str22 = paste("rm -rf ", folder_name, "/miniconda3.tar.gz", sep = "")
+      str22 = paste("rm -rf ", temp.folder, "/miniconda3.tar.gz", sep = "")
       write(str22 , file = output.file, append = TRUE)
       
       
       write(" ", file = output.file, append = TRUE)
+      write("echo ENTER FOLDER", file = output.file, append = TRUE)
+      write("cd /scratch", file = output.file, append = TRUE)
+      str = paste("cd ", name, sep="")
+      write(str, file = output.file, append = TRUE)
+      
+      
+      write(" ", file = output.file, append = TRUE)
+      write("echo path antes de ativar", file = output.file, append = TRUE)
+      write("echo $PATH", file = output.file, append = TRUE)
+      
+      write(" ", file = output.file, append = TRUE)
+      write("echo EXPORT PATH", file = output.file, append = TRUE)
+      str = paste("export PATH=",temp.folder, 
+                  "/miniconda3/condabin/AmbienteTeste:$PATH", sep="")
+      write(str, file = output.file, append = TRUE)
+      
+      
+      write(" ", file = output.file, append = TRUE)
+      write("echo SETANDO PKGS PATH", file = output.file, append = TRUE)
+      str = paste("conda config --prepend pkgs_dirs ", 
+                  temp.folder, "/miniconda3/.conda/pkgs", sep="")
+      write(str, file = output.file, append = TRUE)
+      
+      
+      write(" ", file = output.file, append = TRUE)
+      write("echo SETANDO ENVS PATH", file = output.file, append = TRUE)
+      str = paste("conda config --prepend envs_dirs ", 
+                  temp.folder, "/miniconda3/.conda/envs", sep="")
+      write(str, file = output.file, append = TRUE)
+      
+      
+      write(" ", file = output.file, append = TRUE)
+      write("echo SETANDO ENVS PATH", file = output.file, append = TRUE)
+      write("which -a conda", file = output.file, append = TRUE)
+      
+      
+      write(" ", file = output.file, append = TRUE)
       write("echo SOURCE", file = output.file, append = TRUE)
-      str21 = paste("source ", folder_name,
+      str21 = paste("source ", temp.folder,
                     "/miniconda3/etc/profile.d/conda.sh ", sep = "")
       write(str21, file = output.file, append = TRUE)
       
       
       write(" ", file = output.file, append = TRUE)
       write("echo ACTIVATING MINICONDA ", file = output.file, append = TRUE)
-      write("conda activate GattoEnv", file = output.file, append = TRUE)
+      write("conda activate AmbienteTeste", file = output.file, append = TRUE)
+      write(" ", file = output.file, append = TRUE)
+      
+      
+      write(" ", file = output.file, append = TRUE)
+      write("echo PWD DEPOIS DE ATIVAR", file = output.file, append = TRUE)
+      write("pwd", file = output.file, append = TRUE)
       write(" ", file = output.file, append = TRUE)
       
       
       write("echo RUNNING", file = output.file, append = TRUE)
-      str7 = paste("Rscript /home/u704616/Chains-Hybrid-Partition/R/start.R \"",
-                   config_name, "\"", sep = "")
+      str7 = paste("Rscript ", temp.folder,
+                   "/Chains-Hybrid-Partition/R/start.R \"",
+                   config.name, "\"", sep = "")
       write(str7, file = output.file, append = TRUE)
       write(" ", file = output.file, append = TRUE)
       
       
       write("echo DELETING JOB FOLDER", file = output.file, append = TRUE)
-      str11 = paste("rm -rf ", folder_name, sep = "")
+      str11 = paste("rm -rf ", temp.folder, sep = "")
       write(str11, file = output.file, append = TRUE)
+      
+      
+      write(" ", file = output.file, append = TRUE)
+      write("echo DESATIVANDO MINICONDA ", file = output.file, append = TRUE)
+      write("conda deactivate", file = output.file, append = TRUE)
+      write(" ", file = output.file, append = TRUE)
       
       
       write("", file = output.file, append = TRUE)
