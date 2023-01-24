@@ -84,6 +84,22 @@ directories <- function(dataset_name, folderResults, similarity){
   retorno$folderUtils = folderUtils
   
   #############################################################################
+  #
+  #############################################################################
+  folderEccPython = paste(folderUtils, "/ecc-python", sep="")
+  if(dir.exists(folderEccPython ) == TRUE){
+    setwd(folderEccPython )
+    dir_folderEccPython = dir(folderEccPython)
+    n_folderEccPython = length(dir_folderEccPython)
+  } else {
+    dir.create(folderEccPython )
+    setwd(folderEccPython )
+    dir_folderEccPython = dir(folderEccPython)
+    n_folderEccPython = length(dir_folderEccPython)
+  }
+  retorno$folderEccPython  = folderEccPython 
+  
+  #############################################################################
   # DATASETS FOLDER:                                                          #
   # Get the information within DATASETS folder that already exists in the     #
   # project. This folder store the files from cross-validation and will be    #

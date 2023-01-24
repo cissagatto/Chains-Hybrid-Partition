@@ -1,6 +1,6 @@
 cat("\n\n###########################################################")
-  cat("\n# START: CHAINS OF HYBRID PARTITIONS                       #")
-  cat("\n###########################################################\n\n")
+cat("\n# START: CHAINS OF HYBRID PARTITIONS                       #")
+cat("\n###########################################################\n\n")
 
 
 ##############################################################################
@@ -16,7 +16,7 @@ cat("\n\n###########################################################")
 # Public License for more details.                                           #
 #                                                                            #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri           #
-# Ferrandin | Prof. Dr. Celine Vens | PhD Felipe Nakano Kenji                #
+# Ferrandin | Prof. Dr. Celine Vens | Dr. Felipe Nakano Kenji                #
 #                                                                            #
 # Federal University of São Carlos - UFSCar - https://www2.ufscar.br         #
 # Campus São Carlos - Computer Department - DC - https://site.dc.ufscar.br   #
@@ -31,16 +31,44 @@ cat("\n\n###########################################################")
 ##############################################################################
 
 
-##############################################################################
-# Set Workspace                                                              #
-##############################################################################
+cat("\n##########################################")
+cat("\n# START: SET WORKSPACE PATH              #")
+cat("\n##########################################\n\n")
 FolderRoot = "~/Chains-Hybrid-Partition"
 FolderScripts = "~/Chains-Hybrid-Partition/R"
 
 
-##############################################################################
-# LOAD R SCRIPTS                                                             #
-##############################################################################
+# cat("\n##########################################")
+# cat("\n# START: Changing R LIB USER PATH        #")
+# cat("\n##########################################\n\n")
+# Sys.setenv("R_LIBS_USER" = "/home/biomal/R/x86_64-pc-linux-gnu-library/4.2")
+# /home/biomal/miniconda3/envs/AmbienteTeste/lib/R/library
+
+
+# cat("\n##########################################")
+# cat("\n# START: Changing R LIB PATH             #")
+# cat("\n##########################################\n\n")
+
+# cat("\n========================================\n\n\n")
+# .libPaths()
+# cat("\n\n\n")
+# .libPaths("/home/biomal/R/x86_64-pc-linux-gnu-library/4.2")
+# cat("\n\n\n")
+# .libPaths()
+# cat("\n========================================\n\n\n")
+
+# cat("\n========================================")
+# Sys.getenv()
+# cat("\n========================================\n\n\n")
+
+# installed.packages(lib.loc = "/home/biomal/miniconda3/envs/AmbienteTeste/lib/R/library")
+
+
+cat("\n##########################################")
+cat("\n# START: LOADING SOURCES                 #")
+cat("\n##########################################\n\n")
+
+
 setwd(FolderScripts)
 source("libraries.R")
 
@@ -51,10 +79,9 @@ setwd(FolderScripts)
 source("run.R")
 
 
-
-###############################################################################
-# R Options Configuration                                                     #
-###############################################################################
+cat("\n##########################################")
+cat("\n# START: Setting R Options               #")
+cat("\n##########################################\n\n")
 options(java.parameters = "-Xmx64g")  # Java Options
 options(show.error.messages = TRUE)   # Error Messages
 options(scipen=20)                    # Number of places after the comma
@@ -65,6 +92,11 @@ options(scipen=20)                    # Number of places after the comma
 # Reading the "datasets-original.csv" file to get dataset information         #
 # for code execution!                                                         #
 ###############################################################################
+
+
+cat("\n##########################################")
+cat("\n# START: Opening datasets info file      #")
+cat("\n##########################################\n\n")
 setwd(FolderRoot)
 datasets <- data.frame(read.csv("datasets-original.csv"))
 
@@ -85,8 +117,10 @@ args <- commandArgs(TRUE)
 # from csv file                                                               #
 ###############################################################################
 
-# config_file = "~/Chains-Hybrid-Partition/config-files/ecc/jaccard-3/ecc-j3-GpositiveGO.csv"
-# config_file = "~/Chains-Hybrid-Partition/config-files/clus/jaccard-3/clus-j3-GpositiveGO.csv"
+# config_file = "/home/biomal/Chains-Hybrid-Partition/config-files/mulan/jaccard-3/mulan-j3-GpositiveGO.csv"
+#config_file = "/home/biomal/Chains-Hybrid-Partition/config-files-2/clus/jaccard-3/clus-j3-GpositiveGO.csv"
+# config_file = "/home/biomal/Chains-Hybrid-Partition/config-files/utiml/jaccard-3/utiml-j3-GpositiveGO.csv"
+# config_file = "/home/biomal/Chains-Hybrid-Partition/config-files-2/python/jaccard-3/python-j3-GpositiveGO.csv"
 
 
 config_file <- args[1]
@@ -100,20 +134,23 @@ if(file.exists(config_file)==FALSE){
   break
 } else {
   cat("\n##############################################")
-  cat("\n# START: Properly loaded configuration file! #")
+  cat("\n# START: Configuration file properly loaded  #")
   cat("\n##############################################\n\n")
 }
 
 
 
 cat("\n######################################################################")
-cat("\n# START: Read Parameters                                           #\n")
+cat("\n# START: Read Parameters                                             #\n")
 config = data.frame(read.csv(config_file))
 print(config)
-cat("\n##################################################################\n\n")
+cat("\n######################################################################\n\n")
 
 
+#####################################
+# creating a parameters list
 parameters = list()
+#####################################
 
 
 # DATASET_PATH
@@ -162,40 +199,35 @@ parameters$Number.Cores = number_cores
 ds = datasets[number_dataset,]
 parameters$Dataset.Info = ds
 
-
-
-cat("\n#####################################################################\n")
-cat("\n# DATASET PATH: \t", dataset_path)
-cat("\n# TEMPORARY PATH: \t", folderResults)
-cat("\n# PARTITIONS PATH: \t", Partitions_Path)
-cat("\n# SIMILARITY:  \t", similarity)
-cat("\n# DATASET NAME:  \t", dataset_name)
-cat("\n# NUMBER DATASET: \t", number_dataset)
-cat("\n# NUMBER X-FOLDS CROSS-VALIDATION: \t", number_folds)
-cat("\n# NUMBER CORES: \t", number_cores)
-cat("\n###################################################################\n\n")
-
-
+# 
+# 
+# cat("\n####################################################################\n")
+# cat("\n# DATASET PATH: \t", dataset_path)
+# cat("\n# TEMPORARY PATH: \t", folderResults)
+# cat("\n# PARTITIONS PATH: \t", Partitions_Path)
+# cat("\n# PACKAGE:  \t", classificador)
+# cat("\n# SIMILARITY:  \t", similarity)
+# cat("\n# DATASET NAME:  \t", dataset_name)
+# cat("\n# NUMBER DATASET: \t", number_dataset)
+# cat("\n# NUMBER X-FOLDS CROSS-VALIDATION: \t", number_folds)
+# cat("\n# NUMBER CORES: \t", number_cores)
+# cat("\n##################################################################\n\n")
+# 
 
 cat("\n################################################################\n")
 print(ds)
 cat("\n################################################################\n")
 
 
-
-###############################################################################
-# Creating temporary processing folder                                        #
-###############################################################################
+cat("\n##########################################")
+cat("\n# START: Creating Temp Folder            #")
+cat("\n##########################################\n\n")
 if (dir.exists(folderResults) == FALSE) {dir.create(folderResults)}
 
 
-
-###############################################################################
-# Creating all directories that will be needed for code processing            #
-###############################################################################
 cat("\n#############################")
 cat("\n# START: Get directories    #")
-cat("\n#############################\n\n/")
+cat("\n#############################\n\n")
 diretorios <- directories(dataset_name, folderResults, similarity)
 
 
@@ -209,26 +241,26 @@ parameters$Folders = diretorios
 ###############################################################################
 
 cat("\n####################################################################")
-cat("\n# START: Checking the dataset tar.gz file                          #")
+cat("\n# START: Checking the DATASET tar.gz file                          #")
 cat("\n####################################################################\n\n")
 str00 = paste(dataset_path, "/", ds$Name,".tar.gz", sep = "")
 str00 = str_remove(str00, pattern = " ")
 
 if(file.exists(str00)==FALSE){
-
+  
   cat("\n##########################################################################")
   cat("\n# START: The tar.gz file for the dataset to be processed does not exist! #")
   cat("\n# Please pass the path of the tar.gz file in the configuration file!     #")
   cat("\n# The path entered was: ", str00, "                                      #")
   cat("\n######################################################################\n\n")
   break
-
+  
 } else {
-
+  
   cat("\n####################################################################")
   cat("\n# START: tar.gz file of the DATASET loaded correctly!              #")
   cat("\n####################################################################\n\n")
-
+  
   # COPIANDO
   str01 = paste("cp ", str00, " ", diretorios$folderDatasets, sep = "")
   res = system(str01)
@@ -236,7 +268,7 @@ if(file.exists(str00)==FALSE){
     cat("\nError: ", str01)
     break
   }
-
+  
   # DESCOMPACTANDO
   str02 = paste("tar xzf ", diretorios$folderDatasets, "/", ds$Name,
                 ".tar.gz -C ", diretorios$folderDatasets, sep = "")
@@ -245,7 +277,7 @@ if(file.exists(str00)==FALSE){
     cat("\nError: ", str02)
     break
   }
-
+  
   #APAGANDO
   str03 = paste("rm ", diretorios$folderDatasets, "/", ds$Name,
                 ".tar.gz", sep = "")
@@ -254,7 +286,7 @@ if(file.exists(str00)==FALSE){
     cat("\nError: ", str03)
     break
   }
-
+  
 }
 
 
@@ -270,20 +302,20 @@ str00 = paste(Partitions_Path, "/", ds$Name,".tar.gz", sep = "")
 str00 = str_remove(str00, pattern = " ")
 
 if(file.exists(str00)==FALSE){
-
+  
   cat("\n##########################################################################")
   cat("\n# START: The tar.gz file for the partitions to be processed does not exist! #")
   cat("\n# Please pass the path of the tar.gz file in the configuration file!     #")
   cat("\n# The path entered was: ", str00, "                                      #")
   cat("\n##########################################################################\n\n")
   break
-
+  
 } else {
-
+  
   cat("\n##################################################################")
   cat("\n# START: tar.gz file of the PARTITION loaded correctly!          #")
   cat("\n##################################################################\n\n")
-
+  
   # COPIANDO
   str01 = paste("cp ", str00, " ", diretorios$folderBestPartitions, sep = "")
   res = system(str01)
@@ -291,16 +323,17 @@ if(file.exists(str00)==FALSE){
     cat("\nError: ", str01)
     break
   }
-
+  
   # DESCOMPACTANDO
   str02 = paste("tar xzf ", diretorios$folderBestPartitions, "/", ds$Name,
-                ".tar.gz -C ", diretorios$folderBestPartitions, sep = "")
+                ".tar.gz -C ", diretorios$folderBestPartitions, "/ ",
+                sep = "")
   res = system(str02)
   if (res != 0) {
     cat("\nError: ", str02)
     break
   }
-
+  
   #APAGANDO
   str03 = paste("rm ", diretorios$folderBestPartitions, "/", ds$Name,
                 ".tar.gz", sep = "")
@@ -309,7 +342,7 @@ if(file.exists(str00)==FALSE){
     cat("\nError: ", str03)
     break
   }
-
+  
 }
 
 
@@ -318,10 +351,30 @@ cat("\n####################################################################")
 cat("\n# START: EXECUTE                                                   #")
 cat("\n####################################################################\n\n")
 timeFinal <- system.time(results <- executa(parameters))
-print(timeFinal)
 result_set <- t(data.matrix(timeFinal))
 setwd(diretorios$folderTested)
 write.csv(result_set, "Runtime-Final.csv")
+
+x.minutos = (1 * as.numeric(result_set[3]))/60
+setwd(diretorios$folderTested)
+write(x.minutos, "minutos.txt")
+
+# The definition of ‘user’ and ‘system’ times is from your OS. 
+# Typically it is something like
+
+# The ‘user time’ is the CPU time charged for the execution of 
+# user instructions of the calling process. 
+
+# The ‘system time’ is the CPU time charged for execution by 
+# the system on behalf of the calling process.
+
+# Times of child processes are not available on Windows and will 
+# always be given as NA
+
+# The first two entries are the total user and system CPU times 
+# of the current R process and any child processes on which it has 
+# waited, and the third entry is the ‘real’ elapsed time since the 
+# process was started. 
 
 
 cat("\n####################################################################")
@@ -341,14 +394,13 @@ print(system(paste("rm -r ", diretorios$folderBestPartitions, sep="")))
 
 
 
-
-if(parameters$classificador == "ecc"){
-
+if(parameters$classificador == "mulan"){
+  
   cat("\n####################################################################")
   cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
   origem = diretorios$folderTested
-  destino = paste("nuvem:ECC/Chains/", similarity, "/", dataset_name, sep="")
+  destino = paste("nuvem:Chains/Mulan/", similarity, "/", dataset_name, sep="")
   comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
   cat("\n", comando1, "\n")
   a = print(system(comando1))
@@ -357,21 +409,91 @@ if(parameters$classificador == "ecc"){
     stop("Erro RCLONE")
     quit("yes")
   }
-
-  # cat("\n####################################################################")
-  # cat("\n# Copy to root folder                                              #")
-  # cat("\n####################################################################\n\n")
+  
+  # cat("\n############################################################")
+  # cat("\n# START: Copy to root folder                               #")
+  # cat("\n############################################################\n\n")
   # 
   # folderO = paste(FolderRoot, "/Output", sep="")
   # if(dir.exists(folderO)==FALSE){dir.create(folderO)}
   # 
-  # folderC = paste(folderO, "/Ecc", sep="")
+  # folderC = paste(folderO, "/Mulan", sep="")
   # if(dir.exists(folderC)==FALSE){dir.create(folderC)}
   # 
   # folderS = paste(folderC, "/", similarity, sep="")
   # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
   # 
-  # str_b <- paste("cp -r ", diretorios$folderResults, " ", folderS, sep = "")
+  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  #                folderS, sep = "")
+  # print(system(str_b))
+  
+  
+} else if(parameters$classificador == "utiml"){
+  
+  cat("\n####################################################################")
+  cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
+  cat("\n####################################################################\n\n")
+  origem = diretorios$folderTested
+  destino = paste("nuvem:nuvem:Chains/Utiml/", similarity, "/", dataset_name, sep="")
+  comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
+  cat("\n", comando1, "\n")
+  a = print(system(comando1))
+  a = as.numeric(a)
+  if(a != 0) {
+    stop("Erro RCLONE")
+    quit("yes")
+  }
+  # 
+  # cat("\n############################################################")
+  # cat("\n# START: Copy to root folder                               #")
+  # cat("\n############################################################\n\n")
+  # 
+  # folderO = paste(FolderRoot, "/Output", sep="")
+  # if(dir.exists(folderO)==FALSE){dir.create(folderO)}
+  # 
+  # folderC = paste(folderO, "/Utiml", sep="")
+  # if(dir.exists(folderC)==FALSE){dir.create(folderC)}
+  # 
+  # folderS = paste(folderC, "/", similarity, sep="")
+  # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
+  # 
+  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  #                folderS, sep = "")
+  # print(system(str_b))
+  
+  
+} else if(parameters$classificador == "python"){ 
+  
+  
+  cat("\n####################################################################")
+  cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
+  cat("\n####################################################################\n\n")
+  origem = diretorios$folderTested
+  destino = paste("nuvem:Chains/Python/", similarity, "/", dataset_name, sep="")
+  comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
+  cat("\n", comando1, "\n")
+  a = print(system(comando1))
+  a = as.numeric(a)
+  if(a != 0) {
+    stop("Erro RCLONE")
+    quit("yes")
+  }
+  
+  # cat("\n############################################################")
+  # cat("\n# START: Copy to root folder                               #")
+  # cat("\n############################################################\n\n")
+  # 
+  # folderO = paste(FolderRoot, "/Output", sep="")
+  # if(dir.exists(folderO)==FALSE){dir.create(folderO)}
+  # 
+  # folderC = paste(folderO, "/Python", sep="")
+  # if(dir.exists(folderC)==FALSE){dir.create(folderC)}
+  # 
+  # folderS = paste(folderC, "/", similarity, sep="")
+  # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
+  # 
+  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  #                folderS, sep = "")
   # print(system(str_b))
   
   
@@ -382,7 +504,7 @@ if(parameters$classificador == "ecc"){
   cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
   origem = diretorios$folderTested
-  destino = paste("nuvem:Clus/Chains/", similarity, "/", dataset_name, sep="")
+  destino = paste("nuvem:Chains/Clus/", similarity, "/", dataset_name, sep="")
   comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
   cat("\n", comando1, "\n")
   a = print(system(comando1))
@@ -391,10 +513,10 @@ if(parameters$classificador == "ecc"){
     stop("Erro RCLONE")
     quit("yes")
   }
-  
-  # cat("\n####################################################################")
-  # cat("\n# Copy to root folder                                              #")
-  # cat("\n####################################################################\n\n")
+  # 
+  # cat("\n############################################################")
+  # cat("\n# START: Copy to root folder                               #")
+  # cat("\n############################################################\n\n")
   # 
   # folderO = paste(FolderRoot, "/Output", sep="")
   # if(dir.exists(folderO)==FALSE){dir.create(folderO)}
@@ -405,8 +527,11 @@ if(parameters$classificador == "ecc"){
   # folderS = paste(folderC, "/", similarity, sep="")
   # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
   # 
-  # str_b <- paste("cp -r ", diretorios$folderResults, " ", folderS, sep = "")
+  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  #                folderS, sep = "")
   # print(system(str_b))
+  
+  
 }
 
 
@@ -421,9 +546,9 @@ rm(list = ls())
 gc()
 
 
- cat("\n\n############################################################")
-   cat("\n# START: CHAINS OF HYBRID PARTITION END                    #")
-   cat("\n############################################################")
+cat("\n\n############################################################")
+  cat("\n# START: CHAINS OF HYBRID PARTITION END                    #")
+  cat("\n############################################################")
 cat("\n\n")
 
 

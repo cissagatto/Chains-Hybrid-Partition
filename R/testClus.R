@@ -1,24 +1,29 @@
-###############################################################################
-
-# Copyright (C) 2022
-#
-# This code is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option)
-# any later version. This code is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-# Public License for more details.
-#
-# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin
-# Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus
-# Sao Carlos Computer Department (DC: https://site.dc.ufscar.br/)
-# Program of Post Graduation in Computer Science
-# (PPG-CC: http://ppgcc.dc.ufscar.br/)
-# Bioinformatics and Machine Learning Group
-# (BIOMAL: http://www.biomal.ufscar.br/)
-#
-###############################################################################
+##############################################################################
+# CHAINS OF HYBRID PARTITIONS                                                #
+# Copyright (C) 2022                                                         #
+#                                                                            #
+# This code is free software: you can redistribute it and/or modify it under #
+# the terms of the GNU General Public License as published by the Free       #
+# Software Foundation, either version 3 of the License, or (at your option)  #
+# any later version. This code is distributed in the hope that it will be    #
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of     #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General   #
+# Public License for more details.                                           #
+#                                                                            #
+# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri           #
+# Ferrandin | Prof. Dr. Celine Vens | Dr. Felipe Nakano Kenji                #
+#                                                                            #
+# Federal University of São Carlos - UFSCar - https://www2.ufscar.br         #
+# Campus São Carlos - Computer Department - DC - https://site.dc.ufscar.br   #
+# Post Graduate Program in Computer Science - PPGCC                          # 
+# http://ppgcc.dc.ufscar.br - Bioinformatics and Machine Learning Group      #
+# BIOMAL - http://www.biomal.ufscar.br                                       #
+#                                                                            #
+# Katholieke Universiteit Leuven Campus Kulak Kortrijk Belgium               #
+# Medicine Department - https://kulak.kuleuven.be/                           #
+# https://kulak.kuleuven.be/nl/over_kulak/faculteiten/geneeskunde            #
+#                                                                            #
+##############################################################################
 
 
 ###############################################################################
@@ -142,7 +147,7 @@ build.clus <- function(parameters){
     label.start = c(0)
     label.end = c(0)
     label.as.attr = c(0)
-    all.info.clusters = data.frame(fold, cluster, labels.per.cluster,
+    all.info.cluster = data.frame(fold, cluster, labels.per.cluster,
                                    attr.start, attr.end, 
                                    new.attr.end, 
                                    lab.att.start, lab.att.end, 
@@ -216,7 +221,7 @@ build.clus <- function(parameters){
                                   label.start, label.end,
                                   label.as.attr)
         
-        all.info.clusters = rbind(all.info.clusters, info.cluster)
+        all.info.cluster = rbind(all.info.cluster, info.cluster)
         
         ################################################################
         
@@ -462,8 +467,8 @@ build.clus <- function(parameters){
         setwd(Folder.Test.Cluster)
         unlink(um, recursive = TRUE)
         unlink(dois, recursive = TRUE)
-        # unlink(tres, recursive = TRUE)
-        # unlink(quatro, recursive = TRUE)
+        unlink(tres, recursive = TRUE)
+        unlink(quatro, recursive = TRUE)
         unlink(sete, recursive = TRUE)
         unlink(oito, recursive = TRUE)
         
@@ -511,6 +516,7 @@ build.clus <- function(parameters){
         write.csv(train.dataset, train.name.cluster.csv, row.names = FALSE)
         
         
+        
         ################################################################
         fold = f
         cluster = g
@@ -530,7 +536,8 @@ build.clus <- function(parameters){
                                   label.start, label.end, 
                                   label.as.attr)
         
-        all.info.clusters = rbind(all.info.clusters, info.cluster)
+        all.info.cluster = rbind(all.info.cluster, info.cluster)
+        
         
         
         ################################################################
@@ -538,22 +545,22 @@ build.clus <- function(parameters){
         cat("\n\tTRAIN: Convert CSV to ARFF and Convert Numeric in to Binary")
         train.name.cluster.arff = paste(Folder.Test.Cluster, "/", 
                                         parameters$Dataset.Name, "-split-tr-", 
-                                        f, "-group-", g, ".arff", sep="")
+                                        f, "-group-", g, "-1.arff", sep="")
         arg.csv = train.name.cluster.csv
         arg.arff = train.name.cluster.arff
         arg.targets = paste(info.cluster$lab.att.start, "-", label.end, sep="")
         str.convert = paste("java -jar ", parameters$Folders$folderUtils,
                             "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
                             arg.targets, sep="")
-        cat("\n")
+        cat("\n\n")
         print(system(str.convert))
-        cat("\n")
+        cat("\n\n")
         
         cat("\n\tTRAIN: Verify and correct {0} and {1} ", g , "\n")
         str.train = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg.arff, sep="")
-        cat("\n")
+        cat("\n\n")
         print(system(str.train))
-        cat("\n")
+        cat("\n\n")
         
         cat("\n\tDeleting CSV file")
         setwd(Folder.Test.Cluster)
@@ -577,20 +584,22 @@ build.clus <- function(parameters){
         }
         
         
+        
+        
         ###################################################################
         # Se o número de colunas do resultado das predições for igual a 2 #
         # então significa que só há UM RÓTULO para ser adicionado         #
         ###################################################################
         if(ncol(preds.as.att)==2){ 
           cat("\n\tTEST: Only one prediction")
-          nomes = colnames(preds.as.att)
+          nomes.1 = colnames(preds.as.att)
+          nomes.2 = paste(colnames(preds.as.att), "-att", sep="")
           
           test.attributes = test.file[parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
-          nomes.2 = colnames(test.attributes)
           
           test.attributes = cbind(test.attributes, preds.as.att[,2])
           ultima = ncol(test.attributes)
-          names(test.attributes)[ultima] = nomes[2]
+          colnames(test.attributes)[ultima] = nomes.2[2]
           
           test.classes = select(test.file, cluster.specific$label)
           test.dataset = cbind(test.attributes, test.classes)
@@ -611,6 +620,8 @@ build.clus <- function(parameters){
           end.test.dataset = ncol(test.dataset)
         }
         
+        
+        
         cat("\n\tTEST: Saving Y True")
         setwd(Folder.Test.Cluster)
         write.csv(test.classes, "y_true.csv", row.names = FALSE)
@@ -622,7 +633,7 @@ build.clus <- function(parameters){
         
         cat("\n\tTEST: Convert CSV to ARFF ", g , "\n")
         test.name.cluster.arff = paste(Folder.Test.Cluster, "/", parameters$Dataset.Name, 
-                                       "-split-ts-", f, "-group-", g, ".arff", sep="")
+                                       "-split-ts-", f, "-group-", g, "-1.arff", sep="")
         arg.csv = test.name.cluster.csv
         arg.arff = test.name.cluster.arff
         arg.targets = paste(info.cluster$lab.att.start, "-", label.end, sep="")
@@ -630,15 +641,15 @@ build.clus <- function(parameters){
                             "/R_csv_2_arff.jar ", arg.csv, " ", arg.arff, " ",
                             arg.targets, sep="")
         
-        cat("\n")
+        cat("\n\n")
         print(system(str.convert))
-        cat("\n")
+        cat("\n\n")
         
         cat("\n\tTEST: Verify and correct {0} and {1} ", g , "\n")
         str.test = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg.arff, sep="")
-        cat("\n")
+        cat("\n\n")
         print(system(str.test))
-        cat("\n")
+        cat("\n\n")
         
         cat("\n\tTEST: Deleting CSV file")
         setwd(Folder.Test.Cluster)
@@ -807,8 +818,8 @@ build.clus <- function(parameters){
         setwd(Folder.Test.Cluster)
         unlink(um, recursive = TRUE)
         unlink(dois, recursive = TRUE)
-        # unlink(tres, recursive = TRUE)
-        # unlink(quatro, recursive = TRUE)
+        unlink(tres, recursive = TRUE)
+        unlink(quatro, recursive = TRUE)
         unlink(sete, recursive = TRUE)
         unlink(oito, recursive = TRUE)
         
@@ -818,7 +829,7 @@ build.clus <- function(parameters){
       
       setwd(Folder.Tested.Split)
       name = paste("info-cluster-", f, ".csv", sep="")
-      write.csv(all.info.clusters[-1,], name, row.names = FALSE)
+      write.csv(all.info.cluster[-1,], name, row.names = FALSE)
       
       g = g + 1
       gc()
@@ -924,9 +935,9 @@ gather.predicts.clus <- function(parameters){
       y_pred_gr = data.frame(read.csv("y_pred.csv"))
       y_pred = cbind(y_pred, y_pred_gr)
       
-      # cat("\n\nDeleting files")
-      # unlink("y_true.csv", recursive = TRUE)
-      # unlink("y_pred.csv", recursive = TRUE)
+      cat("\n\nDeleting files")
+      unlink("y_true.csv", recursive = TRUE)
+      unlink("y_pred.csv", recursive = TRUE)
       unlink("inicioFimRotulos.csv", recursive = TRUE)
       
       g = g + 1
@@ -1039,8 +1050,8 @@ evaluate.clus <- function(parameters){
     
     cat("\nDelete files")
     setwd(Folder.Tested.Split)
-    # unlink("y_true.csv", recursive = TRUE)
-    # unlink("y_predict.csv", recursive = TRUE)
+    unlink("y_true.csv", recursive = TRUE)
+    unlink("y_predict.csv", recursive = TRUE)
     
     #f = f + 1
     gc()
@@ -1113,16 +1124,22 @@ gather.evaluated.clus <- function(parameters){
   media = data.frame(apply(avaliado.final[,-1], 1, mean))
   media = cbind(measures, media)
   names(media) = c("Measures", "Mean10Folds")
+  
+  setwd(parameters$Folders$folderTested)
   write.csv(media, "Mean10Folds.csv", row.names = FALSE)
   
   mediana = data.frame(apply(avaliado.final[,-1], 1, median))
   mediana = cbind(measures, mediana)
   names(mediana) = c("Measures", "Median10Folds")
+  
+  setwd(parameters$Folders$folderTested)
   write.csv(mediana, "Median10Folds.csv", row.names = FALSE)
   
   dp = data.frame(apply(avaliado.final[,-1], 1, sd))
   dp = cbind(measures, dp)
   names(dp) = c("Measures", "SD10Folds")
+  
+  setwd(parameters$Folders$folderTested)
   write.csv(dp, "desvio-padrão-10-folds.csv", row.names = FALSE)
   
   

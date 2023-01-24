@@ -1,5 +1,5 @@
 # Chains of Hybrid Partition
-This code is part of my PhD research at PPG-CC/DC/UFSCar in colaboration withKatholieke Universiteit Leuven Campus Kulak Kortrijk Belgium.
+This code is part of my PhD research at PPG-CC/DC/UFSCar in colaboration with Katholieke Universiteit Leuven Campus Kulak Kortrijk Belgium.
 
 We use the same principles of Ensemble of Classifiers Chains but applied to a Chain of data Partitions.
 
@@ -13,8 +13,10 @@ This code source is composed of the project R to be used in RStudio IDE and also
 2. utils.R
 3. misc.R
 4. testClus.R
-5. testECC.R
-6. run.R
+5. testMulan.R
+6. testPython.R
+7. testUtiml.R
+8. run.R
 7. start.R
 8. config_files.R
 9. jobs.R
@@ -89,8 +91,8 @@ To run this code you will need a configuration file saved in *csv* format and wi
 | Dataset_Path    | Absolute path to the directory where the dataset's tar.gz is stored           |
 | Temporary_Path  | Absolute path to the directory where temporary processing will be performed*  |
 | Partitions_Path | Absolute path to the directory where the best partitions are                  |
-| classifier      | Must be "ecc"" or "clus"                                                       |
-| similarity      | Choose which one to run: jaccard, rogers, random1 and random2                 |
+| classifier      | Must be "clus", "mulan", "python" or "utiml"                                  |
+| similarity      | Choose which one to run: jaccard, rogers, random1 or random2                  |
 | dataset_name    | Dataset name according to *datasets-original.csv* file                        |
 | number_dataset  | Dataset number according to *datasets-original.csv* file                      |
 | number_folds    | Number of folds used in cross validation                                      |
@@ -138,7 +140,7 @@ Rscript start.R [absolute_path_to_config_file]
 Example:
 
 ```
-Rscript start.R "~/Chains-Hybrid-Partition/R/config-files/ecc/jaccard-3/j3-GpositiveGO.csv"
+Rscript start.R "~/Chains-Hybrid-Partition/R/config-files/mulan/jaccard-3/mulan-j3-GpositiveGO.csv"
 ```
 
 ## DOWNLOAD RESULTS

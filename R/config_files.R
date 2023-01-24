@@ -1,8 +1,8 @@
 rm(list = ls())
 
 ##############################################################################
-
-# Copyright (C) 2022                                                       #
+# CHAINS OF HYBRID PARTITIONS                                                #
+# Copyright (C) 2022                                                         #
 #                                                                            #
 # This code is free software: you can redistribute it and/or modify it under #
 # the terms of the GNU General Public License as published by the Free       #
@@ -13,11 +13,17 @@ rm(list = ls())
 # Public License for more details.                                           #
 #                                                                            #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri           #
-# Ferrandin | Federal University of Sao Carl/os                               #
-# (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos | Computer Department  #
-# (DC: https://site.dc.ufscar.br/) | Program of Post Graduation in Computer  #
-# Science (PPG-CC: http://ppgcc.dc.ufscar.br/) | Bioinformatics and Machine  #
-# Learning Group (BIOMAL: http://www.biomal.ufscar.br/)                      #
+# Ferrandin | Prof. Dr. Celine Vens | Dr. Felipe Nakano Kenji                #
+#                                                                            #
+# Federal University of São Carlos - UFSCar - https://www2.ufscar.br         #
+# Campus São Carlos - Computer Department - DC - https://site.dc.ufscar.br   #
+# Post Graduate Program in Computer Science - PPGCC                          # 
+# http://ppgcc.dc.ufscar.br - Bioinformatics and Machine Learning Group      #
+# BIOMAL - http://www.biomal.ufscar.br                                       #
+#                                                                            #
+# Katholieke Universiteit Leuven Campus Kulak Kortrijk Belgium               #
+# Medicine Department - https://kulak.kuleuven.be/                           #
+# https://kulak.kuleuven.be/nl/over_kulak/faculteiten/geneeskunde            #
 #                                                                            #
 ##############################################################################
 
@@ -53,7 +59,7 @@ sim = c("j3", "ro2")
 ###############################################################################
 #
 ###############################################################################
-pacote = c("clus", "utiml", "mulan")
+pacote = c("clus", "utiml", "mulan", "python")
 
 
 ###############################################################################
@@ -161,7 +167,7 @@ while(g<=length(pacote)){
       write("number_folds, 10", file = output.file, append = TRUE)
       
       # Number of cores to use for parallel processing
-      write("number_cores, 10", file = output.file, append = TRUE)
+      write("number_cores, 1", file = output.file, append = TRUE)
       
       # finish writing to the configuration file
       close(output.file)
