@@ -114,7 +114,7 @@ executa <- function(parameters){
   timeAllPartitions = system.time(resAP <- get.all.partitions(parameters))
   parameters$All.Partitions = resAP
   
-  setwd(FolderRoot)
+  setwd(parameteres$Folders$folderResults)
   write.csv(resAP$all.total.labels,"total-labels-per-cluster.csv", 
             row.names = FALSE)
   
