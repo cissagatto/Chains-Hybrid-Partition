@@ -64,18 +64,17 @@ A file called _datasets-original.csv_ must be in the *root project directory*. T
 ### STEP 2
 To run this experiment you need the _X-Fold Cross-Validation_ files and they must be compacted in **tar.gz** format. You can download these files, with 10-folds, ready for multilabel dataset by clicking [here](https://www.4shared.com/directory/ypgzwzjq/datasets-cross-validation.html). For a new dataset, in addition to including it in the **datasets-original.csv** file, you must also run this code [here](https://github.com/cissagatto/crossvalidationmultilabel). In the repository in question you will find all the instructions needed to generate the files in the format required for this experiment. The **tar.gz** file can be placed on any directory on your computer or server. The absolute path of the file should be passed as a parameter in the configuration file that will be read by **start.R** script. The dataset folds will be loaded from there.
 
+
+
 ### STEP 3
-You need to have installed all the R packages required to execute this code on your machine or server. Check out which are needed in the file *libraries.R*. This code does not provide any type of automatic package installation!
+You will need the previously generated partitions by this [code](https://github.com/cissagatto/Best-Partition-Silhouette). You must use here the results generated from the *OUTPUT* directory in that source code. They must be compressed into a *TAR.GZ* file and placed in a directory on your computer. The absolute path of this directory must be passed as a parameter in the configuration file. Please see the example in the _BEST-PARTITIONS_ directory in this source code. I already have the best chosen hybrid partitions from that code and you can downloaded [here](https://1drv.ms/u/s!Aq6SGcf6js1mru9ea6_ChUuPDvwdhQ?e=aMLLl3).
+
+
 
 ### STEP 4
-You will need the previously generated partitions by this [code](https://github.com/cissagatto/Best-Partition-Silhouette). You must use the results generated from the *OUTPUT* directory in those source code. They must be compressed into a *TAR.GZ* file and placed in a directory on your computer. The absolute path of this directory must be passed as a parameter in the configuration file. Please see the example in the _BEST-PARTITIONS_ directory in this source code.
+You need to have installed all the Java, Python and R packages required to execute this code on your machine or server. This code does not provide any type of automatic package installation!
 
-### STEP 5
-You can use the Conda environment that I created to perform this experiment. Below are the links to download the files.
-
-| [download txt](https://www.4shared.com/s/fUCVTl13zea) | [download yml](https://www.4shared.com/s/f8nOZyxj9iq) | [download yaml](https://www.4shared.com/s/fk5Io4faLiq) |
-
-Try to use the command below to extract the environment to your computer:
+You can use the [Conda Environment](https://1drv.ms/u/s!Aq6SGcf6js1mw4hbhU9Raqarl8bH8Q?e=IA2aQs) that I created to perform this experiment. Below are the links to download the files. Try to use the command below to extract the environment to your computer:
 
 ```
 conda env create -file AmbienteTeste.yaml
@@ -83,7 +82,12 @@ conda env create -file AmbienteTeste.yaml
 
 See more information about Conda environments [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) 
 
-### STEP 6
+You can also run this code using the AppTainer [container](https://1drv.ms/u/s!Aq6SGcf6js1mw4hcVuz_IN8_Bh1oFQ?e=5NuyxX) that I'm using to run this code in a SLURM cluster. Please, check this [tutorial](https://rpubs.com/cissagatto/apptainer-slurm-r) (in portuguese) to see how to do that. 
+
+
+
+
+### STEP 5
 To run this code you will need a configuration file saved in *csv* format and with the following information:
 
 | Config          | Value                                                                         | 
@@ -128,7 +132,7 @@ Important: we used the CLUS and ECC from MULAN in this experiment. This implies 
 
 
 ## Results
-The results stored in the directory _OUTPUT_.
+The results stored in the _OUTPUT_ directory.
 
 ## RUN
 To run the code, open the terminal, enter the *~/Chains-Hybrid-Partition/R* directory, and type
