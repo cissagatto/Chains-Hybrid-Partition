@@ -59,7 +59,7 @@ sim = c("j3", "ro2")
 ###############################################################################
 #
 ###############################################################################
-pacote = c("clus", "utiml", "mulan", "python")
+Implementation = c("clus", "utiml", "mulan", "python")
 
 
 ###############################################################################
@@ -74,15 +74,15 @@ if(dir.exists(FolderCF)==FALSE){dir.create(FolderCF)}
 #
 ###############################################################################
 g = 1 
-while(g<=length(pacote)){
+while(g<=length(Implementation)){
   
-  FolderClassifier = paste(FolderCF, "/", pacote[g], sep="")
-  if(dir.exists(FolderClassifier)==FALSE){dir.create(FolderClassifier)}
+  FolderImplementation = paste(FolderCF, "/", Implementation[g], sep="")
+  if(dir.exists(FolderImplementation)==FALSE){dir.create(FolderImplementation)}
   
   s = 1
   while(s<=length(similarity)){
     
-    FolderSimilarity = paste(FolderClassifier, "/", similarity[s], sep="")
+    FolderSimilarity = paste(FolderImplementation, "/", similarity[s], sep="")
     if(dir.exists(FolderSimilarity)==FALSE){dir.create(FolderSimilarity)}
     
     d = 1
@@ -92,84 +92,79 @@ while(g<=length(pacote)){
       ds = datasets[d,]
       
       cat("\n\n=================================================")
-      cat("\nClassifier: \t", pacote[g])
-      cat("\nSimilarity: \t", similarity[s])
-      cat("\nDataset: \t", ds$Name)
+      cat("\nImplementation: \t", Implementation[g])
+      cat("\nSimilarity: \t\t", similarity[s])
+      cat("\nDataset: \t\t", ds$Name)
       
-      name = paste(pacote[g], "-", sim[s], "-", ds$Name, sep="")
+      name = paste(Implementation[g], "-", sim[s], "-", ds$Name, sep="")
       
-      temp.folder = paste("/scratch/", name, sep="")
+      # temp.folder = paste("/scratch/", name, sep="")
+      temp.folder = paste("/dev/shm/", name, sep="")
       
-      code.folder = paste("/scratch/", name, 
-                          "/Chains-Hybrid-Partition", sep="")
+      # code.folder = paste("/scratch/", name, 
+      #                    "/Chains-Hybrid-Partition", sep="")
       
-      config.name = paste(code.folder , "/", pacote[g], 
-                          "/", name,".csv", sep="")
+      code.folder = paste("~/Chains-Hybrid-Partition", sep="")
+      
+      # config.name = paste(code.folder , "/", Implementation[g], 
+      #                    "/", name,".csv", sep="")
       
       config.name.2 = paste(FolderSimilarity, "/", name, ".csv", sep="")
       
-      sh.name = paste(FolderSimilarity, "/", name, ".sh", sep="")
+      # sh.name = paste(code.folder, "/", name, ".sh", sep="")
       
       # Starts building the configuration file
       output.file <- file(config.name.2, "wb")
       
       # Config file table header
-      write("Config, Value",
-            file = output.file, append = TRUE)
+      write("Config, Value", file = output.file, append = TRUE)
       
       # Absolute path to the folder where the dataset's "tar.gz" is stored
       
-      write("Dataset_Path, \"/home/u704616/Datasets\"",
-            file = output.file, append = TRUE)
+      # write("Dataset_Path, \"/home/u704616/Datasets\"",
+      #       file = output.file, append = TRUE)
       
       # write("Dataset_Path, /home/elaine/Datasets",
       #      file = output.file, append = TRUE)
       
-      # write("Dataset_Path, ~/Chains-Hybrid-Partition/Datasets",
-      #     file = output.file, append = TRUE)
+      write("Dataset_Path, /home/biomal/Datasets", file = output.file, append = TRUE)
       
 
       # Absolute path to the folder where temporary processing will be done.
       # You should use "scratch", "tmp" or "/dev/shm", it will depend on the
       # cluster model where your experiment will be run.
       
-      str1 = paste("Temporary_Path, ", temp.folder, sep="")
-      write(str1,file = output.file, append = TRUE)
-      
-      # str = paste("/home/elaine/Best-Partitions/", similarity[s], sep="")
-      str = paste("/home/u704616/Best-Partitions/", similarity[s], sep="")
-      # str = paste("~/Chains-Hybrid-Partition/Best-Partitions/", 
-      #             similarity[s], sep="")
-      
-      str2 = paste("Partitions_Path, ", str,  sep="")
-      write(str2, file = output.file, append = TRUE)
+      str.0 = paste("Temporary_Path, ", temp.folder, sep="")
+      write(str.0,file = output.file, append = TRUE)
       
       
-      str4 = paste("classifier, ", pacote[g], sep="")
-      write(str4, file = output.file, append = TRUE)
+      # # str.1 = paste("/home/elaine/Best-Partitions/", similarity[s], sep="")
+      # str.1 = paste("/home/u704616/Best-Partitions/", similarity[s], sep="")
+      str.1 = paste("/home/biomal/Best-Partitions/", similarity[s], sep="")
+      str.2 = paste("Partitions_Path, ", str.1,  sep="")
+      write(str.2, file = output.file, append = TRUE)
       
       
-      str5 = paste("similarity, ", similarity[s], sep="")
-      write(str5, file = output.file, append = TRUE)
+      str.3 = paste("Implementation, ", Implementation[g], sep="")
+      write(str.3, file = output.file, append = TRUE)
       
       
-      # dataset name
-      str3 = paste("dataset_name, ", ds$Name, sep="")
-      write(str3, file = output.file, append = TRUE)
+      str.4 = paste("Similarity, ", similarity[s], sep="")
+      write(str.4, file = output.file, append = TRUE)
       
       
-      # Dataset number according to "datasets-original.csv" file
-      str2 = paste("number_dataset, ", ds$Id, sep="")
-      write(str2, file = output.file, append = TRUE)
+      str.5 = paste("Dataset_name, ", ds$Name, sep="")
+      write(str.5, file = output.file, append = TRUE)
       
       
-      # Number used for X-Fold Cross-Validation
-      write("number_folds, 10", file = output.file, append = TRUE)
+      str.6 = paste("Number_dataset, ", ds$Id, sep="")
+      write(str.6, file = output.file, append = TRUE)
       
-      # Number of cores to use for parallel processing
-      write("number_cores, 1", file = output.file, append = TRUE)
       
-      # finish writing to the configuration file
+      write("Number_folds, 10", file = output.file, append = TRUE)
+      
+      write("Number_cores, 1", file = output.file, append = TRUE)
+      
       close(output.file)
       
       d = d + 1

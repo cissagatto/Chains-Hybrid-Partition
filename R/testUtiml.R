@@ -140,8 +140,9 @@ build.utiml <- function(parameters){
     tr.labels.true = train.file.final[, parameters$Dataset.Info$LabelStart:parameters$Dataset.Info$LabelEnd]
     
     ####################################################################################
-    FolderSplit = paste(diretorios$folderGlobal, "/Split-", i, sep="")
+    FolderSplit = paste(parameters$Folders$folderGlobal, "/Split-", f, sep="")
     if(dir.create(FolderSplit)==FALSE){dir.create(FolderSplit)}
+    
     #######################################################################
     fold = c(0)
     cluster = c(0)
@@ -251,10 +252,10 @@ build.utiml <- function(parameters){
           cat("\n\t#========================================#\n\n")
           
           # separando os rótulos verdadeiros
-          y_true = test.dataset[,ds$LabelStart:ds$LabelEnd]
+          y_true = test.dataset[,parameters$Dataset.Info$LabelStart:parameters$Dataset.Info$LabelEnd]
           
           # gerando indices
-          number = seq(ds$LabelStart, ds$LabelEnd, by=1)
+          number = seq(parameters$Dataset.Info$LabelStart, parameters$Dataset.Info$LabelEnd, by=1)
           
           C50::C5.0(test.dataset)
           

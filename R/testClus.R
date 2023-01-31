@@ -814,6 +814,8 @@ build.clus <- function(parameters){
         quatro = paste(parameters$Dataset.Name, "-split-ts-", f, "-group-", g, ".arff", sep="")
         sete = paste(parameters$Dataset.Name, "-split-", f, "-group-", g, ".out", sep="")
         oito = paste("Variance_RHE_1.csv")
+        nove = paste(parameters$Dataset.Name, "-split-tr-", f, "-group-", g, "-1.arff", sep="")
+        dez = paste(parameters$Dataset.Name, "-split-ts-", f, "-group-", g, "-1.arff", sep="")
         
         setwd(Folder.Test.Cluster)
         unlink(um, recursive = TRUE)
