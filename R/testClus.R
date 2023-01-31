@@ -824,6 +824,8 @@ build.clus <- function(parameters){
         unlink(quatro, recursive = TRUE)
         unlink(sete, recursive = TRUE)
         unlink(oito, recursive = TRUE)
+        unlink(nove, recursive = TRUE)
+        unlink(dez, recursive = TRUE)
         
         cat("\n")
         
