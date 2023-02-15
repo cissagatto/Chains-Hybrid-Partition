@@ -47,9 +47,9 @@ get.all.partitions <- function(parameters){
   
   retorno = list()
   
-  pasta.best = paste(parameters$Folders$folderBestPartitions, 
-                     "/", parameters$Dataset.Name, 
-                     "/", parameters$Dataset.Name, 
+  pasta.best = paste(parameters$Folders$folderBPSC, "/", 
+                     parameters$dataset.name, "/",
+                     parameters$dataset.name, "",
                      "-Best-Silhouete.csv", sep="")
   best = data.frame(read.csv(pasta.best))
   
@@ -62,15 +62,15 @@ get.all.partitions <- function(parameters){
   all.total.labels = data.frame()
   
   f = 1
-  while(f<=parameters$Number.Folds){
+  while(f<=parameters$number.folds){
     
     best.fold = best[f,]
     num.fold = best.fold$fold
     num.part = best.fold$part
     
-    Pasta = paste(parameters$Folders$folderBestPartitions, 
-                  "/", parameters$Dataset.Name, "/Split-", 
-                  f, sep="")
+    Pasta = paste(parameters$Folders$folderBPSC, 
+                  "/", parameters$dataset.name, 
+                  "/Split-", f, sep="")
     pasta.groups = paste(Pasta, "/fold-", f, 
                          "-groups-per-partition.csv", sep="")
     groups = data.frame(read.csv(pasta.groups))
@@ -134,7 +134,7 @@ compute.labels.attributes <-function(parameters){
   all.total.labels = data.frame(resultado$all.total.labels)
   
   f = 1
-  while(f<=parameters$Number.Folds){
+  while(f<=parameters$number.folds){
     
     FolderSplit = paste(parameters$Folders$folderTested, "/Split-", f, sep="")
     if(dir.exists(FolderSplit)==FALSE){dir.create(FolderSplit)}
@@ -215,7 +215,7 @@ gather.info.clusters <- function(parameters){
   
   todos = data.frame()
   f = 1
-  while(f<=parameters$Number.Folds){
+  while(f<=parameters$number.folds){
     
     Folder.Split = paste(parameters$Folders$folderTested, 
                         "/Split-", f, sep="")

@@ -62,7 +62,7 @@ executa <- function(parameters){
   
   
   ##########################################################################
-  if(parameters$Number.Cores == 0){
+  if(parameters$number.cores == 0){
     
     cat("\n\n############################################################")
     cat("\n# RUN: Zero is a disallowed value for number_cores. Please #")
@@ -71,17 +71,17 @@ executa <- function(parameters){
     
   } else {
     
-    cl <- parallel::makeCluster(parameters$Number.Cores)
+    cl <- parallel::makeCluster(parameters$number.cores)
     doParallel::registerDoParallel(cl)
     print(cl)
     
-    if(number_cores==1){
+    if(parameters$number.cores==1){
       cat("\n\n########################################################")
       cat("\n# RUN: Running Sequentially!                           #")
       cat("\n########################################################\n\n")
     } else {
       cat("\n\n######################################################################")
-      cat("\n# RUN: Running in parallel with ", parameters$Number.Cores, " cores! #")
+      cat("\n# RUN: Running in parallel with ", parameters$number.cores, " cores! #")
       cat("\n######################################################################\n\n")
     }
   }
@@ -94,7 +94,7 @@ executa <- function(parameters){
   cat("\n# RUN: Get labels                                      #")
   cat("\n########################################################\n\n")
   arquivo = paste(parameters$Folders$folderNamesLabels, "/" ,
-                  dataset_name, "-NamesLabels.csv", sep="")
+                  dataset.name, "-NamesLabels.csv", sep="")
   namesLabels = data.frame(read.csv(arquivo))
   colnames(namesLabels) = c("id", "labels")
   namesLabels = c(namesLabels$labels)
@@ -126,7 +126,7 @@ executa <- function(parameters){
   parameters$Labels.Attr = resCLA
   
   
-  if(parameters$classificador=="mulan"){
+  if(parameters$implementation=="mulan"){
     
     setwd(FolderScripts)
     source("testMulan.R")
@@ -177,7 +177,7 @@ executa <- function(parameters){
     
   } 
   
-  else if(parameters$classificador=="utiml"){
+  else if(parameters$implementation=="utiml"){
     
     cat("\n\n###########################################")
     cat("\n# RUN: UTIML ECC CLASSIFIER                 #")
@@ -228,7 +228,7 @@ executa <- function(parameters){
               row.names = FALSE)
     
     
-  } else if(parameters$classificador=="python"){
+  } else if(parameters$implementation =="python"){
     
     
     setwd(FolderScripts)

@@ -87,13 +87,6 @@ options(show.error.messages = TRUE)   # Error Messages
 options(scipen=20)                    # Number of places after the comma
 
 
-
-###############################################################################
-# Reading the "datasets-original.csv" file to get dataset information         #
-# for code execution!                                                         #
-###############################################################################
-
-
 cat("\n##########################################")
 cat("\n# START: Opening datasets info file      #")
 cat("\n##########################################\n\n")
@@ -101,10 +94,6 @@ setwd(FolderRoot)
 datasets <- data.frame(read.csv("datasets-original.csv"))
 
 
-
-###############################################################################
-# ARGS COMMAND LINE                                                           #
-###############################################################################
 cat("\n##########################################")
 cat("\n# START: Get arguments from command line #")
 cat("\n##########################################\n\n")
@@ -117,19 +106,19 @@ args <- commandArgs(TRUE)
 # from csv file                                                               #
 ###############################################################################
 
-# config_file = "/home/biomal/Chains-Hybrid-Partition/config-files/mulan/jaccard-3/mulan-j3-GpositiveGO.csv"
-#config_file = "/home/biomal/Chains-Hybrid-Partition/config-files-2/clus/jaccard-3/clus-j3-GpositiveGO.csv"
-# config_file = "/home/biomal/Chains-Hybrid-Partition/config-files/utiml/jaccard-3/utiml-j3-GpositiveGO.csv"
-# config_file = "/home/biomal/Chains-Hybrid-Partition/config-files-2/python/jaccard-3/python-j3-GpositiveGO.csv"
+# config.file = "/home/biomal/Chains-Hybrid-Partition/config-files/mulan/jaccard-3/mulan-j3-GpositiveGO.csv"
+# config.file = "/home/biomal/Chains-Hybrid-Partition/config-files-2/clus/jaccard-3/clus-j3-GpositiveGO.csv"
+# config.file = "/home/biomal/Chains-Hybrid-Partition/config-files/utiml/jaccard-3/utiml-j3-GpositiveGO.csv"
+# config.file = "/home/biomal/Chains-Hybrid-Partition/config-files/python/jaccard/ward.D2/silho/pjws-GpositiveGO.csv"
 
 
-config_file <- args[1]
+config.file <- args[1]
 
 
-if(file.exists(config_file)==FALSE){
+if(file.exists(config.file)==FALSE){
   cat("\n##############################################################")
   cat("\n# START: Missing Config File! Verify the following path:     #")
-  cat("\n# ", config_file, "                                          #")
+  cat("\n# ", config.file, "                                          #")
   cat("\n##############################################################\n\n")
   break
 } else {
@@ -142,7 +131,7 @@ if(file.exists(config_file)==FALSE){
 
 cat("\n######################################################################")
 cat("\n# START: Read Parameters                                             #\n")
-config = data.frame(read.csv(config_file))
+config = data.frame(read.csv(config.file))
 print(config)
 cat("\n######################################################################\n\n")
 
@@ -153,66 +142,62 @@ parameters = list()
 #####################################
 
 
-# DATASET_PATH
-dataset_path = toString(config$Value[1])
-dataset_path = str_remove(dataset_path, pattern = " ")
-parameters$Path.Dataset = dataset_path
+# DATASET PATH
+dataset.path = toString(config$Value[1])
+dataset.path = str_remove(dataset.path, pattern = " ")
+parameters$path.dataset = dataset.path
 
-# TEMPORARTY_PATH
-folderResults = toString(config$Value[2])
-folderResults = str_remove(folderResults, pattern = " ")
-parameters$Folder.Results = folderResults
+# TEMPORARTY PATH - FOLDER RESULTS 
+folder.results = toString(config$Value[2])
+folder.results = str_remove(folder.results, pattern = " ")
+parameters$folder.results = folder.results
 
-# PARTITIONS_PATH
-Partitions_Path = toString(config$Value[3])
-Partitions_Path = str_remove(Partitions_Path, pattern = " ")
-parameters$Path.Partitions = Partitions_Path
+# PARTITIONS
+partitions.path = toString(config$Value[3])
+partitions.path = str_remove(partitions.path, pattern = " ")
+parameters$path.partitions = partitions.path
 
-# Classificador
-classificador = toString(config$Value[4])
-classificador = str_remove(classificador, pattern = " ")
-parameters$classificador = classificador
+# IMPLEMENTATION
+implementation = toString(config$Value[4])
+implementation = str_remove(implementation, pattern = " ")
+parameters$implementation = implementation
 
 # SIMILARITY
 similarity = toString(config$Value[5])
 similarity = str_remove(similarity, pattern = " ")
-parameters$Similarity = similarity
+parameters$similarity = similarity
 
-# DATASET_NAME
-dataset_name = toString(config$Value[6])
-dataset_name = str_remove(dataset_name, pattern = " ")
-parameters$Dataset.Name = dataset_name
+# DENDROGRAM
+dendrogram = toString(config$Value[6])
+dendrogram = str_remove(dendrogram, pattern = " ")
+parameters$dendrogram = dendrogram
+
+# CRITERIA
+criteria = toString(config$Value[7])
+criteria = str_remove(criteria, pattern = " ")
+parameters$criteria = criteria
+
+# dataset.name
+dataset.name = toString(config$Value[8])
+dataset.name = str_remove(dataset.name, pattern = " ")
+parameters$dataset.name = dataset.name
 
 # DATASET_NUMBER
-number_dataset = as.numeric(config$Value[7])
-parameters$Number.Dataset = number_dataset
+number.dataset = as.numeric(config$Value[9])
+parameters$number.dataset = number.dataset
 
-# NUMBER_FOLDS
-number_folds = as.numeric(config$Value[8])
-parameters$Number.Folds = number_folds
+# number.folds
+number.folds = as.numeric(config$Value[10])
+parameters$number.folds = number.folds
 
-# NUMBER_CORES
-number_cores = as.numeric(config$Value[9])
-parameters$Number.Cores = number_cores
+# number.cores
+number.cores = as.numeric(config$Value[11])
+parameters$number.cores = number.cores
 
 # DATASET_INFO
-ds = datasets[number_dataset,]
-parameters$Dataset.Info = ds
+ds = datasets[number.dataset,]
+parameters$dataset.info = ds
 
-# 
-# 
-# cat("\n####################################################################\n")
-# cat("\n# DATASET PATH: \t", dataset_path)
-# cat("\n# TEMPORARY PATH: \t", folderResults)
-# cat("\n# PARTITIONS PATH: \t", Partitions_Path)
-# cat("\n# PACKAGE:  \t", classificador)
-# cat("\n# SIMILARITY:  \t", similarity)
-# cat("\n# DATASET NAME:  \t", dataset_name)
-# cat("\n# NUMBER DATASET: \t", number_dataset)
-# cat("\n# NUMBER X-FOLDS CROSS-VALIDATION: \t", number_folds)
-# cat("\n# NUMBER CORES: \t", number_cores)
-# cat("\n##################################################################\n\n")
-# 
 
 cat("\n################################################################\n")
 print(ds)
@@ -222,13 +207,13 @@ cat("\n################################################################\n")
 cat("\n##########################################")
 cat("\n# START: Creating Temp Folder            #")
 cat("\n##########################################\n\n")
-if (dir.exists(folderResults) == FALSE) {dir.create(folderResults)}
+if (dir.exists(folder.results) == FALSE) {dir.create(folder.results)}
 
 
 cat("\n#############################")
 cat("\n# START: Get directories    #")
 cat("\n#############################\n\n")
-diretorios <- directories(dataset_name, folderResults, similarity)
+diretorios <- directories(parameters)
 
 
 #####################################
@@ -243,7 +228,7 @@ parameters$Folders = diretorios
 cat("\n####################################################################")
 cat("\n# START: Checking the DATASET tar.gz file                          #")
 cat("\n####################################################################\n\n")
-str00 = paste(dataset_path, "/", ds$Name,".tar.gz", sep = "")
+str00 = paste(dataset.path, "/", ds$Name,".tar.gz", sep = "")
 str00 = str_remove(str00, pattern = " ")
 
 if(file.exists(str00)==FALSE){
@@ -298,8 +283,10 @@ if(file.exists(str00)==FALSE){
 cat("\n####################################################################")
 cat("\n# START: Checking the PARTITIONS tar.gz file                       #")
 cat("\n####################################################################\n\n")
-str00 = paste(Partitions_Path, "/", ds$Name,".tar.gz", sep = "")
+str00 = paste(partitions.path, "/", ds$Name,".tar.gz", sep = "")
 str00 = str_remove(str00, pattern = " ")
+
+# /home/biomal/Best-Partitions/jaccard/ward.D2/silho
 
 if(file.exists(str00)==FALSE){
   
@@ -317,7 +304,7 @@ if(file.exists(str00)==FALSE){
   cat("\n##################################################################\n\n")
   
   # COPIANDO
-  str01 = paste("cp ", str00, " ", diretorios$folderBestPartitions, sep = "")
+  str01 = paste("cp ", str00, " ", diretorios$folderBPSC , sep = "")
   res = system(str01)
   if (res != 0) {
     cat("\nError: ", str01)
@@ -325,8 +312,8 @@ if(file.exists(str00)==FALSE){
   }
   
   # DESCOMPACTANDO
-  str02 = paste("tar xzf ", diretorios$folderBestPartitions, "/", ds$Name,
-                ".tar.gz -C ", diretorios$folderBestPartitions, "/ ",
+  str02 = paste("tar xzf ", diretorios$folderBPSC, "/", ds$Name,
+                ".tar.gz -C ", diretorios$folderBPSC, "/ ",
                 sep = "")
   res = system(str02)
   if (res != 0) {
@@ -335,7 +322,7 @@ if(file.exists(str00)==FALSE){
   }
   
   #APAGANDO
-  str03 = paste("rm ", diretorios$folderBestPartitions, "/", ds$Name,
+  str03 = paste("rm ", diretorios$folderBPSC, "/", ds$Name,
                 ".tar.gz", sep = "")
   res = system(str03)
   if (res != 0) {
@@ -387,20 +374,20 @@ print(system(paste("rm -r ", diretorios$folderBestPartitions, sep="")))
 # cat("\n####################################################################")
 # cat("\n# Compress folders and files                                       #")
 # cat("\n####################################################################\n\n")
-# str_a <- paste("tar -zcf ", diretorios$folderResults, "/", dataset_name,
+# str_a <- paste("tar -zcf ", diretorios$folder.results, "/", dataset.name,
 #                "-", similarity, "-results-bps-e.tar.gz ",
-#                diretorios$folderResults, sep = "")
+#                diretorios$folder.results, sep = "")
 # print(system(str_a))
 
 
 
-if(parameters$classificador == "mulan"){
+if(parameters$implementation == "mulan"){
   
   cat("\n####################################################################")
   cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
   origem = diretorios$folderTested
-  destino = paste("nuvem:Chains/Mulan/", similarity, "/", dataset_name, sep="")
+  destino = paste("nuvem:Chains/Mulan/", similarity, "/", dataset.name, sep="")
   comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
   cat("\n", comando1, "\n")
   a = print(system(comando1))
@@ -423,18 +410,18 @@ if(parameters$classificador == "mulan"){
   # folderS = paste(folderC, "/", similarity, sep="")
   # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
   # 
-  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  # str_b <- paste("cp -r ", diretorios$folder.results, " ", 
   #                folderS, sep = "")
   # print(system(str_b))
   
   
-} else if(parameters$classificador == "utiml"){
+} else if(parameters$implementation == "utiml"){
   
   cat("\n####################################################################")
   cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
   origem = diretorios$folderTested
-  destino = paste("nuvem:nuvem:Chains/Utiml/", similarity, "/", dataset_name, sep="")
+  destino = paste("nuvem:nuvem:Chains/Utiml/", similarity, "/", dataset.name, sep="")
   comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
   cat("\n", comando1, "\n")
   a = print(system(comando1))
@@ -457,19 +444,19 @@ if(parameters$classificador == "mulan"){
   # folderS = paste(folderC, "/", similarity, sep="")
   # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
   # 
-  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  # str_b <- paste("cp -r ", diretorios$folder.results, " ", 
   #                folderS, sep = "")
   # print(system(str_b))
   
   
-} else if(parameters$classificador == "python"){ 
+} else if(parameters$implementation == "python"){ 
   
   
   cat("\n####################################################################")
   cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
   origem = diretorios$folderTested
-  destino = paste("nuvem:Chains/Python/", similarity, "/", dataset_name, sep="")
+  destino = paste("nuvem:Chains/Python/", similarity, "/", dataset.name, sep="")
   comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
   cat("\n", comando1, "\n")
   a = print(system(comando1))
@@ -492,7 +479,7 @@ if(parameters$classificador == "mulan"){
   # folderS = paste(folderC, "/", similarity, sep="")
   # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
   # 
-  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  # str_b <- paste("cp -r ", diretorios$folder.results, " ", 
   #                folderS, sep = "")
   # print(system(str_b))
   
@@ -504,7 +491,7 @@ if(parameters$classificador == "mulan"){
   cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
   origem = diretorios$folderTested
-  destino = paste("nuvem:Chains/Clus/", similarity, "/", dataset_name, sep="")
+  destino = paste("nuvem:Chains/Clus/", similarity, "/", dataset.name, sep="")
   comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
   cat("\n", comando1, "\n")
   a = print(system(comando1))
@@ -527,7 +514,7 @@ if(parameters$classificador == "mulan"){
   # folderS = paste(folderC, "/", similarity, sep="")
   # if(dir.exists(folderS)==FALSE){dir.create(folderS)}
   # 
-  # str_b <- paste("cp -r ", diretorios$folderResults, " ", 
+  # str_b <- paste("cp -r ", diretorios$folder.results, " ", 
   #                folderS, sep = "")
   # print(system(str_b))
   
@@ -539,7 +526,7 @@ if(parameters$classificador == "mulan"){
 cat("\n####################################################################")
 cat("\n# START: DELETE                                                    #")
 cat("\n####################################################################\n\n")
-str_c = paste("rm -r ", diretorios$folderResults, sep="")
+str_c = paste("rm -r ", diretorios$folder.results, sep="")
 print(system(str_c))
 
 rm(list = ls())

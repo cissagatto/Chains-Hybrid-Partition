@@ -45,8 +45,8 @@ build.python <- function(parameters){
   parameters = parameters
   
   f = 1
-  build.paralel.ecc <- foreach(f = 1:parameters$Number.Folds) %dopar%{
-  # while(f<=parameters$Number.Folds){
+  build.paralel.ecc <- foreach(f = 1:parameters$number.folds) %dopar%{
+  # while(f<=parameters$number.folds){
     
     
     cat("\n\n\n#===================================================#")
@@ -87,15 +87,15 @@ build.python <- function(parameters){
     ##########################################################################
     cat("\nCreating Folders from Best Partitions and Splits Tests")
     
-    Folder.Best.Partition.Split = paste(parameters$Folders$folderBestPartitions, 
-                                        "/", parameters$Dataset.Name,
+    Folder.Best.Partition.Split = paste(parameters$Folders$folderBPSC, 
+                                        "/", parameters$dataset.name,
                                         "/Split-", f, sep="")
     
     Folder.Tested.Split = paste(parameters$Folders$folderTested,
                                 "/Split-", f, sep="")
     if(dir.create(Folder.Tested.Split)==FALSE){dir.create(Folder.Tested.Split)}
     
-    Folder.BP = paste(parameters$Folders$folderBestPartitions, 
+    Folder.BP = paste(parameters$Folders$folderBPSC, 
                       "/", parameters$Dataset.Name, sep="")
     
     Folder.BPF = paste(Folder.BP, "/Split-", f, sep="")
@@ -106,7 +106,7 @@ build.python <- function(parameters){
     ########################################################################
     cat("\nOpening TRAIN file")
     train.name.file.csv = paste(parameters$Folders$folderCVTR, 
-                                "/", parameters$Dataset.Name, 
+                                "/", parameters$dataset.name, 
                                 "-Split-Tr-", f, ".csv", sep="")
     train.file = data.frame(read.csv(train.name.file.csv))
     
@@ -114,7 +114,7 @@ build.python <- function(parameters){
     #####################################################################
     cat("\nOpening VALIDATION file")
     val.name.file.csv = paste(parameters$Folders$folderCVVL, 
-                              "/", parameters$Dataset.Name, 
+                              "/", parameters$dataset.name, 
                               "-Split-Vl-", f, ".csv", sep="")
     val.file = data.frame(read.csv(val.name.file.csv))
     
@@ -122,7 +122,7 @@ build.python <- function(parameters){
     ########################################################################
     cat("\nOpening TEST file")
     test.name.file.csv = paste(parameters$Folders$folderCVTS,
-                               "/", parameters$Dataset.Name, 
+                               "/", parameters$dataset.name, 
                                "-Split-Ts-", f, ".csv", sep="")
     test.file = data.frame(read.csv(test.name.file.csv))
     
@@ -133,12 +133,12 @@ build.python <- function(parameters){
     
     #######################################################################
     cat("\nGetting the instance space for train and test sets")
-    arquivo.ts.att = test.file[, parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
-    arquivo.tr.att = train.file.final[, parameters$Dataset.Info$AttStart:parameters$Dataset.Info$AttEnd]
+    arquivo.ts.att = test.file[, parameters$dataset.info$AttStart:parameters$dataset.info$AttEnd]
+    arquivo.tr.att = train.file.final[, parameters$dataset.info$AttStart:parameters$dataset.info$AttEnd]
     
     cat("\nGetting the Y TRUE for train and test sets")
-    ts.labels.true = test.file[, parameters$Dataset.Info$LabelStart:parameters$Dataset.Info$LabelEnd]
-    tr.labels.true = train.file.final[, parameters$Dataset.Info$LabelStart:parameters$Dataset.Info$LabelEnd]
+    ts.labels.true = test.file[, parameters$dataset.info$LabelStart:parameters$dataset.info$LabelEnd]
+    tr.labels.true = train.file.final[, parameters$dataset.info$LabelStart:parameters$dataset.info$LabelEnd]
     
     ####################
     # /dev/shm/python-j3-GpositiveGO/Best-Partitions/GpositiveGO/
@@ -187,6 +187,12 @@ build.python <- function(parameters){
     
     # EXECUTA
     res = print(system(str.execute))
+    
+    str = paste("rm -rf ",Folder.Tested.Split, "/Group-*", sep="")
+    system(str)
+    
+    str = paste("rm -rf ",Folder.Tested.Split, "/label-att-*", sep="")
+    system(str)
     
     # str.1 = paste("mv ", FolderScripts, "/y_pred.csv ", Folder.Tested.Split, sep="")
     # str.2 = paste("mv ", FolderScripts, "/y_true.csv ", Folder.Tested.Split, sep="")
@@ -246,8 +252,8 @@ build.python <- function(parameters){
 evaluate.python <- function(parameters){
   
   f = 1
-  avalParal <- foreach(f = 1:parameters$Number.Folds) %dopar%{
-  # while(f<=parameters$Number.Folds){
+  avalParal <- foreach(f = 1:parameters$number.folds) %dopar%{
+  # while(f<=parameters$number.folds){
     
     
     cat("\n\n\n#======================================================")
@@ -356,7 +362,7 @@ gather.evaluated.python <- function(parameters){
   
   # from fold = 1 to index.dataset_folders
   f = 1
-  while(f<=parameters$Number.Folds){
+  while(f<=parameters$number.folds){
     
     cat("\n#======================================================")
     cat("\n# Fold: ", f)

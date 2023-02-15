@@ -52,14 +52,31 @@ n = nrow(datasets)
 ###############################################################################
 #
 ###############################################################################
-similarity = c("jaccard-3","rogers-2")
-sim = c("j3", "ro2")
+similarity.1 = c("jaccard","rogers")
+similarity.2 = c("j", "r")
 
 
 ###############################################################################
 #
 ###############################################################################
-Implementation = c("clus", "utiml", "mulan", "python")
+dendrograma.1 = c("single","ward.D2")
+dendrograma.2 = c("s", "w")
+
+###############################################################################
+#
+###############################################################################
+criterio.1 = c("maf1","mif1", "silho")
+criterio.2 = c("ma", "mi", "s")
+
+
+###############################################################################
+#
+###############################################################################
+# implementation.1 = c("clus", "utiml", "mulan", "python")
+# implementation.2 = c("c", "u", "m", "p")
+
+implementation.1 = c("python")
+ implementation.2 = c("p")
 
 
 ###############################################################################
@@ -73,111 +90,149 @@ if(dir.exists(FolderCF)==FALSE){dir.create(FolderCF)}
 ###############################################################################
 #
 ###############################################################################
-g = 1 
-while(g<=length(Implementation)){
+i = 1 
+while(i<=length(implementation.1)){
   
-  FolderImplementation = paste(FolderCF, "/", Implementation[g], sep="")
+  FolderImplementation = paste(FolderCF, "/", implementation.1[i], sep="")
   if(dir.exists(FolderImplementation)==FALSE){dir.create(FolderImplementation)}
   
   s = 1
-  while(s<=length(similarity)){
+  while(s<=length(similarity.1)){
     
-    FolderSimilarity = paste(FolderImplementation, "/", similarity[s], sep="")
+    FolderSimilarity = paste(FolderImplementation, "/", similarity.1[s], sep="")
     if(dir.exists(FolderSimilarity)==FALSE){dir.create(FolderSimilarity)}
     
-    d = 1
-    while(d<=n){
+    e = 1
+    while(e<=length(dendrograma.1)){
       
-      # specific dataset
-      ds = datasets[d,]
+      FolderDendrograma = paste(FolderSimilarity, "/", dendrograma.1[e], sep="")
+      if(dir.exists(FolderDendrograma)==FALSE){dir.create(FolderDendrograma)}
       
-      cat("\n\n=================================================")
-      cat("\nImplementation: \t", Implementation[g])
-      cat("\nSimilarity: \t\t", similarity[s])
-      cat("\nDataset: \t\t", ds$Name)
+      f = 1
+      while(f<=length(criterio.1)){
+        
+        FolderCriterio = paste(FolderDendrograma, "/", criterio.1[f], sep="")
+        if(dir.exists(FolderCriterio )==FALSE){dir.create(FolderCriterio)}
+        
+        d = 1
+        while(d<=n){
+          
+          # specific dataset
+          ds = datasets[d,]
+          
+          cat("\n\n=================================================")
+          cat("\nImplementation: \t", implementation.1[i])
+          cat("\nSimilarity: \t\t", similarity.1[s])
+          cat("\nDendrogram: \t\t", dendrograma.1[e])
+          cat("\nCriteria: \t\t", criterio.1[f])
+          cat("\nDataset: \t\t", ds$Name)
+          
+          name = paste(implementation.2[i], "", 
+                       similarity.2[s], "", 
+                       dendrograma.2[e], "", 
+                       criterio.2[f], "-", 
+                       ds$Name, sep="")
+          
+          # temp.folder = paste("/scratch/", name, sep="")
+          temp.folder = paste("/dev/shm/", name, sep="")
+          
+          # code.folder = paste("/scratch/", name, 
+          #                    "/Chains-Hybrid-Partition", sep="")
+          
+          code.folder = paste("~/Chains-Hybrid-Partition", sep="")
+          
+          # config.name = paste(code.folder , "/", Implementation[g], 
+          #                    "/", name,".csv", sep="")
+          
+          config.name.2 = paste(FolderCriterio, "/", 
+                                name, ".csv", sep="")
+          
+          # sh.name = paste(code.folder, "/", name, ".sh", sep="")
+          
+          # Starts building the configuration file
+          output.file <- file(config.name.2, "wb")
+          
+          # Config file table header
+          write("Config, Value", file = output.file, append = TRUE)
+          
+          # Absolute path to the folder where the dataset's "tar.gz" is stored
+          
+          # write("Dataset_Path, \"/home/u704616/Datasets\"",
+          #       file = output.file, append = TRUE)
+          
+          # write("Dataset_Path, /home/elaine/Datasets",
+          #      file = output.file, append = TRUE)
+          
+          write("Dataset_Path, /home/biomal/Datasets", 
+                file = output.file, append = TRUE)
+          
+          
+          # Absolute path to the folder where temporary processing will be done.
+          # You should use "scratch", "tmp" or "/dev/shm", it will depend on the
+          # cluster model where your experiment will be run.
+          
+          str.0 = paste("Temporary_Path, ", temp.folder, sep="")
+          write(str.0,file = output.file, append = TRUE)
+          
+          
+          # # str.1 = paste("/home/elaine/Best-Partitions/", similarity[s], sep="")
+          # str.1 = paste("/home/u704616/Best-Partitions/", similarity[s], sep="")
+          str.1 = paste("/home/biomal/Best-Partitions/", 
+                        similarity.1[s], "/", dendrograma.1[e], 
+                        "/", criterio.1[f], sep="")
+          str.2 = paste("Partitions_Path, ", str.1,  sep="")
+          write(str.2, file = output.file, append = TRUE)
+          
+          
+          str.3 = paste("Implementation, ", implementation.1[i], sep="")
+          write(str.3, file = output.file, append = TRUE)
+          
+          
+          str.4 = paste("Similarity, ", similarity.1[s], sep="")
+          write(str.4, file = output.file, append = TRUE)
+          
+          
+          str.8 = paste("Dendrogram, ", dendrograma.1[e], sep="")
+          write(str.8, file = output.file, append = TRUE)
+          
+          
+          str.7 = paste("Criteria, ", criterio.1[f], sep="")
+          write(str.7, file = output.file, append = TRUE)
+          
+          
+          str.5 = paste("Dataset_name, ", ds$Name, sep="")
+          write(str.5, file = output.file, append = TRUE)
+          
+          
+          str.6 = paste("Number_dataset, ", ds$Id, sep="")
+          write(str.6, file = output.file, append = TRUE)
+          
+          
+          write("Number_folds, 10", file = output.file, append = TRUE)
+          
+          write("Number_cores, 10", file = output.file, append = TRUE)
+          
+          close(output.file)
+          
+          d = d + 1
+          gc()
+        } # DATASET END
+        
+        f = f + 1
+        gc()
+      } # CRITERIO END
       
-      name = paste(Implementation[g], "-", sim[s], "-", ds$Name, sep="")
-      
-      # temp.folder = paste("/scratch/", name, sep="")
-      temp.folder = paste("/dev/shm/", name, sep="")
-      
-      # code.folder = paste("/scratch/", name, 
-      #                    "/Chains-Hybrid-Partition", sep="")
-      
-      code.folder = paste("~/Chains-Hybrid-Partition", sep="")
-      
-      # config.name = paste(code.folder , "/", Implementation[g], 
-      #                    "/", name,".csv", sep="")
-      
-      config.name.2 = paste(FolderSimilarity, "/", name, ".csv", sep="")
-      
-      # sh.name = paste(code.folder, "/", name, ".sh", sep="")
-      
-      # Starts building the configuration file
-      output.file <- file(config.name.2, "wb")
-      
-      # Config file table header
-      write("Config, Value", file = output.file, append = TRUE)
-      
-      # Absolute path to the folder where the dataset's "tar.gz" is stored
-      
-      # write("Dataset_Path, \"/home/u704616/Datasets\"",
-      #       file = output.file, append = TRUE)
-      
-      # write("Dataset_Path, /home/elaine/Datasets",
-      #      file = output.file, append = TRUE)
-      
-      write("Dataset_Path, /home/biomal/Datasets", file = output.file, append = TRUE)
-      
-
-      # Absolute path to the folder where temporary processing will be done.
-      # You should use "scratch", "tmp" or "/dev/shm", it will depend on the
-      # cluster model where your experiment will be run.
-      
-      str.0 = paste("Temporary_Path, ", temp.folder, sep="")
-      write(str.0,file = output.file, append = TRUE)
-      
-      
-      # # str.1 = paste("/home/elaine/Best-Partitions/", similarity[s], sep="")
-      # str.1 = paste("/home/u704616/Best-Partitions/", similarity[s], sep="")
-      str.1 = paste("/home/biomal/Best-Partitions/", similarity[s], sep="")
-      str.2 = paste("Partitions_Path, ", str.1,  sep="")
-      write(str.2, file = output.file, append = TRUE)
-      
-      
-      str.3 = paste("Implementation, ", Implementation[g], sep="")
-      write(str.3, file = output.file, append = TRUE)
-      
-      
-      str.4 = paste("Similarity, ", similarity[s], sep="")
-      write(str.4, file = output.file, append = TRUE)
-      
-      
-      str.5 = paste("Dataset_name, ", ds$Name, sep="")
-      write(str.5, file = output.file, append = TRUE)
-      
-      
-      str.6 = paste("Number_dataset, ", ds$Id, sep="")
-      write(str.6, file = output.file, append = TRUE)
-      
-      
-      write("Number_folds, 10", file = output.file, append = TRUE)
-      
-      write("Number_cores, 1", file = output.file, append = TRUE)
-      
-      close(output.file)
-      
-      d = d + 1
+      e = e + 1
       gc()
-    } # DATASET END
+    } # DENDROGRAMA FIM
     
     s = s + 1
     gc()
   } # SIMILARITY END
   
-  g = g + 1
+  i = i + 1
   gc()
-}
+} # IMPLEMENTATION END
 
 
 rm(list = ls())

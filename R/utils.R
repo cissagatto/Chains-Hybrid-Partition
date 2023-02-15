@@ -35,14 +35,14 @@ FolderScripts = "~/Chains-Hybrid-Partition/R"
 #   Objective:                                           
 #      Creates all the necessary folders for the project.
 #   Parameters:                                          
-#      dataset_name: name of the dataset                 
+#      dataset.name: name of the dataset                 
 #      folderResults: path to save process the algorithm. 
 #               Example: "/dev/shm/birds", "/scratch/birds", 
 #            "/home/usuario/birds", "/C:/Users/usuario/birds"
 #   Return:                                                              
 #      All path directories                                              
 #########################################################################
-directories <- function(dataset_name, folderResults, similarity){
+directories <- function(parameters){
   
   FolderRoot = "~/Chains-Hybrid-Partition"
   FolderScripts = "~/Chains-Hybrid-Partition/R"
@@ -55,7 +55,8 @@ directories <- function(dataset_name, folderResults, similarity){
   # execution. Other folder is used to store definitely the results.          #
   # Example: "/dev/shm/res"                                                   #
   #############################################################################
-  if(dir.exists(folderResults) == TRUE){
+  folderResults = parameters$folder.results
+  if(dir.exists(parameters$folder.results) == TRUE){
     setwd(folderResults)
     dir_folderResults = dir(folderResults)
     n_folderResults = length(dir_folderResults)
@@ -67,8 +68,9 @@ directories <- function(dataset_name, folderResults, similarity){
   }
   retorno$folderResults = folderResults
   
+  
   #############################################################################
-  #
+  # UTILS
   #############################################################################
   folderUtils = paste(FolderRoot, "/Utils", sep="")
   if(dir.exists(folderUtils ) == TRUE){
@@ -83,10 +85,11 @@ directories <- function(dataset_name, folderResults, similarity){
   }
   retorno$folderUtils = folderUtils
   
+  
   #############################################################################
-  #
+  # PASTA ONDE ESTÁ O PYTHON 
   #############################################################################
-  folderEccPython = paste(folderUtils, "/ecc-python", sep="")
+  folderEccPython = paste(folderUtils, "/ecc-ExIn", sep="")
   if(dir.exists(folderEccPython ) == TRUE){
     setwd(folderEccPython )
     dir_folderEccPython = dir(folderEccPython)
@@ -98,6 +101,7 @@ directories <- function(dataset_name, folderResults, similarity){
     n_folderEccPython = length(dir_folderEccPython)
   }
   retorno$folderEccPython  = folderEccPython 
+  
   
   #############################################################################
   # DATASETS FOLDER:                                                          #
@@ -127,7 +131,7 @@ directories <- function(dataset_name, folderResults, similarity){
   # running this code for EMOTIONS dataset, then this get the path from it    #
   # "/home/[user]/Partitions-Kohonen/datasets/birds"                          #
   #############################################################################
-  folderSpecificDataset = paste(folderDatasets, "/", dataset_name, sep="")
+  folderSpecificDataset = paste(folderDatasets, "/", dataset.name, sep="")
   if(dir.exists(folderSpecificDataset) == TRUE){
     setwd(folderSpecificDataset)
     dir_folderSpecificDataset = dir(folderSpecificDataset)
@@ -263,7 +267,25 @@ directories <- function(dataset_name, folderResults, similarity){
   
   
   #############################################################################
-  #
+  # TESTE
+  #############################################################################
+  folderTested = paste(folderResults, "/Tested", sep="")
+  if(dir.exists(folderTested) == TRUE){
+    setwd(folderTested)
+    dir_folderTested = dir(folderTested)
+    n_folderTested = length(dir_folderTested)
+  } else {
+    dir.create(folderTested)
+    setwd(folderTested)
+    dir_folderTested = dir(folderTested)
+    n_folderTested = length(dir_folderTested)
+  }
+  retorno$folderTested = folderTested
+  
+  
+  
+  #############################################################################
+  # MELHORES PARTIÇÕES SELECIONADAS
   #############################################################################
   folderBestPartitions = paste(folderResults, "/Best-Partitions", sep="")
   if(dir.exists(folderBestPartitions) == TRUE){
@@ -279,87 +301,64 @@ directories <- function(dataset_name, folderResults, similarity){
   retorno$folderBestPartitions = folderBestPartitions
   
   
-  #############################################################################
-  #
-  #############################################################################
-  folderTested = paste(folderResults, "/Tested", sep="")
-  if(dir.exists(folderTested) == TRUE){
-    setwd(folderTested)
-    dir_folderTested = dir(folderTested)
-    n_folderTested = length(dir_folderTested)
-  } else {
-    dir.create(folderTested)
-    setwd(folderTested)
-    dir_folderTested = dir(folderTested)
-    n_folderTested = length(dir_folderTested)
-  }
-  retorno$folderTested = folderTested
-  
-  # 
-  # #############################################################################
-  # #
-  # #############################################################################
-  # folderTestedClus = paste(folderTested, "/Clus", sep="")
-  # if(dir.exists(folderTestedClus) == TRUE){
-  #   setwd(folderTestedClus)
-  #   dir_folderTestedClus = dir(folderTestedClus)
-  #   n_folderTestedClus = length(dir_folderTestedClus)
-  # } else {
-  #   dir.create(folderTestedClus)
-  #   setwd(folderTestedClus)
-  #   dir_folderTestedClus = dir(folderTestedClus)
-  #   n_folderTestedClus = length(dir_folderTestedClus)
-  # }
-  # retorno$folderTestedClus = folderTestedClus
-  # 
-  # 
-  # #############################################################################
-  # #
-  # #############################################################################
-  # folderTestedECC = paste(folderTested, "/ECC", sep="")
-  # if(dir.exists(folderTestedECC) == TRUE){
-  #   setwd(folderTestedECC)
-  #   dir_folderTestedECC = dir(folderTestedECC)
-  #   n_folderTestedECC = length(dir_folderTestedECC)
-  # } else {
-  #   dir.create(folderTestedECC)
-  #   setwd(folderTestedECC)
-  #   dir_folderTestedECC = dir(folderTestedECC)
-  #   n_folderTestedECC = length(dir_folderTestedECC)
-  # }
-  # retorno$folderTestedECC = folderTestedECC
   
   #############################################################################
-  #
+  # SIMILARIDADE: JACCARD, ROGERS-TANIMOTO, ETC.
   #############################################################################
-  folderBPR = paste(FolderRoot, "/Best-Partitions", sep="")
-  if(dir.exists(folderBPR) == TRUE){
-    setwd(folderBPR)
-    dir_folderBPR = dir(folderBPR)
-    n_folderBPR = length(dir_folderBPR)
+  folderBPS = paste(folderBestPartitions, "/",
+                               parameters$similarity, sep="")
+  if(dir.exists(folderBPS) == TRUE){
+    setwd(folderBPS)
+    dir_folderBPS = dir(folderBPS)
+    n_folderBPS = length(dir_folderBPS)
   } else {
-    dir.create(folderBPR)
-    setwd(folderBPR)
-    dir_folderBPR = dir(folderBPR)
-    n_folderBPR = length(dir_folderBPR)
+    dir.create(folderBPS)
+    setwd(folderBPS)
+    dir_folderBPS = dir(folderBPS)
+    n_folderBPS = length(dir_folderBPS)
   }
-  retorno$folderBPR = folderBPR
+  retorno$folderBPS = folderBPS
+  
+  
+  
   
   #############################################################################
-  #
+  # CRITERIO: SILHOUETTE, MACRO-F1 OU MICRO-F1
   #############################################################################
-  folderBPRS = paste(folderBPR, "/", similarity, sep="")
-  if(dir.exists(folderBPRS) == TRUE){
-    setwd(folderBPRS)
-    dir_folderBPRS = dir(folderBPRS)
-    n_folderBPRS = length(dir_folderBPRS)
+  folderBPSD = paste(folderBPS, "/",
+                     parameters$dendrogram , sep="")
+  if(dir.exists(folderBPSD) == TRUE){
+    setwd(folderBPSD)
+    dir_folderBPSD = dir(folderBPSD)
+    n_folderBPSD = length(dir_folderBPSD)
   } else {
-    dir.create(folderBPRS)
-    setwd(folderBPRS)
-    dir_folderBPRS = dir(folderBPRS)
-    n_folderBPRS = length(dir_folderBPRS)
+    dir.create(folderBPSD)
+    setwd(folderBPSD)
+    dir_folderBPSD = dir(folderBPSD)
+    n_folderBPSD = length(dir_folderBPSD)
   }
-  retorno$folderBPRS = folderBPRS
+  retorno$folderBPSD = folderBPSD
+  
+  
+  
+  
+  #############################################################################
+  # CRITERIO: SILHOUETTE, MACRO-F1 OU MICRO-F1
+  #############################################################################
+  folderBPSC = paste(folderBPSD, "/",
+                     parameters$criteria, sep="")
+  if(dir.exists(folderBPSC) == TRUE){
+    setwd(folderBPSC)
+    dir_folderBPSC = dir(folderBPSC)
+    n_folderBPSC = length(dir_folderBPSC)
+  } else {
+    dir.create(folderBPSC)
+    setwd(folderBPSC)
+    dir_folderBPSC = dir(folderBPSC)
+    n_folderBPSC = length(dir_folderBPSC)
+  }
+  retorno$folderBPSC = folderBPSC
+  
   
   
   return(retorno)
@@ -375,7 +374,7 @@ directories <- function(dataset_name, folderResults, similarity){
 #     as input for calculating correlations
 #   Parameters                             
 #       ds: specific dataset information   
-#       dataset_name: dataset name. It is used to save files.
+#       dataset.name: dataset name. It is used to save files.
 #       number_folds: number of folds created                
 #       folderResults: folder where to save results          
 #   Return:                                                  
@@ -390,7 +389,7 @@ labelSpace <- function(parameters){
   
   # from the first FOLD to the last
   k = 1
-  while(k<=parameters$Number.Folds){
+  while(k<=parameters$number.folds){
     
     # cat("\n\tFold: ", k)
     
@@ -398,7 +397,7 @@ labelSpace <- function(parameters){
     setwd(parameters$Folders$folderCVTR)
     
     # get the correct fold cross-validation
-    nome_arquivo = paste(parameters$Dataset.Name, "-Split-Tr-", k, ".csv", sep="")
+    nome_arquivo = paste(parameters$dataset.name, "-Split-Tr-", k, ".csv", sep="")
     
     # open the file
     arquivo = data.frame(read.csv(nome_arquivo))
