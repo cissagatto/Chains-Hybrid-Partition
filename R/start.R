@@ -456,10 +456,15 @@ if(parameters$implementation == "mulan"){
   cat("\n# START: COPY TO GOOGLE DRIVE                                      #")
   cat("\n####################################################################\n\n")
   origem = diretorios$folderTested
-  destino = paste("nuvem:Chains/Python/", similarity, "/", dataset.name, sep="")
-  comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
-  cat("\n", comando1, "\n")
-  a = print(system(comando1))
+  destino = paste("nuvem:Chains-Completa/", 
+                  parameters$implementation, "/",
+                  parameters$similarity,  "/",
+                  parameters$dendrogram,  "/",
+                  parameters$criteria,  "/",
+                  parameters$dataset.name, sep="")
+  comando = paste("rclone -P copy ", origem, " ", destino, sep="")
+  cat("\n", comando, "\n")
+  a = print(system(comando))
   a = as.numeric(a)
   if(a != 0) {
     stop("Erro RCLONE")

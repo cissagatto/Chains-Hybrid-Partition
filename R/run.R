@@ -171,7 +171,7 @@ executa <- function(parameters){
     Runtime = rbind(timeBuild, timeSplit, timeAvalia,
                     timeGather, timeInfo)
     setwd(parameters$Folders$folderTested)
-    write.csv(Runtime, paste(parameters$Dataset.Name,
+    write.csv(Runtime, paste(parameters$dataset.name,
                              "-test-runtime-ecc.csv", sep=""),
               row.names = FALSE)
     
@@ -223,7 +223,7 @@ executa <- function(parameters){
     Runtime = rbind(timeBuild, timeSplit, timeAvalia,
                     timeGather, timeInfo)
     setwd(parameters$Folders$folderTested)
-    write.csv(Runtime, paste(parameters$Dataset.Name,
+    write.csv(Runtime, paste(parameters$dataset.name,
                              "-test-runtime-utiml.csv", sep=""),
               row.names = FALSE)
     
@@ -269,7 +269,7 @@ executa <- function(parameters){
     cat("\n##############################################\n\n")
     Runtime = rbind(timeBuild, timeAvalia, timeGather, timeInfo)
     setwd(parameters$Folders$folderTested)
-    write.csv(Runtime, paste(parameters$Dataset.Name,
+    write.csv(Runtime, paste(parameters$dataset.name,
                              "-test-runtime-python.csv", sep=""),
               row.names = FALSE)
     
@@ -321,7 +321,7 @@ executa <- function(parameters){
     Runtime = rbind(timeBuild, timeSplit, timeAvalia,
                     timeGather, timeInfo)
     setwd(parameters$Folders$folderTested)
-    write.csv(Runtime, paste(parameters$Dataset.Name,
+    write.csv(Runtime, paste(parameters$dataset.name,
                              "-test-runtime-clus.csv", sep=""),
               row.names = FALSE)
     
