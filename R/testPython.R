@@ -424,6 +424,9 @@ gather.evaluated.python <- function(parameters){
   setwd(parameters$Folders$folderTested)
   write.csv(dp, "desvio-padrão-10-folds.csv", row.names = FALSE)
   
+  str = "ESTE É O COMPLETE CHAINS HPMLS"
+  write(str, "informacoes.txt")
+  
   
   gc()
   cat("\n######################################################")

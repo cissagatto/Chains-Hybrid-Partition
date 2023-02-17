@@ -157,13 +157,7 @@ while(i<=length(implementation.1)){
           
           # Absolute path to the folder where the dataset's "tar.gz" is stored
           
-          # write("Dataset_Path, \"/home/u704616/Datasets\"",
-          #       file = output.file, append = TRUE)
-          
-          # write("Dataset_Path, /home/elaine/Datasets",
-          #      file = output.file, append = TRUE)
-          
-          write("Dataset_Path, /home/biomal/Datasets", 
+          write("Dataset_Path, /home/elaine/Datasets", 
                 file = output.file, append = TRUE)
           
           
@@ -175,9 +169,8 @@ while(i<=length(implementation.1)){
           write(str.0,file = output.file, append = TRUE)
           
           
-          # # str.1 = paste("/home/elaine/Best-Partitions/", similarity[s], sep="")
-          # str.1 = paste("/home/u704616/Best-Partitions/", similarity[s], sep="")
-          str.1 = paste("/home/biomal/Best-Partitions/", 
+          
+          str.1 = paste("/home/elaine/Best-Partitions/", 
                         similarity.1[s], "/", dendrograma.1[e], 
                         "/", criterio.1[f], sep="")
           str.2 = paste("Partitions_Path, ", str.1,  sep="")
