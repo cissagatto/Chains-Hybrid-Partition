@@ -99,10 +99,10 @@ To run this code you will need a configuration file saved in *csv* format and wi
 | Similarity      | A similarity matrix from jaccard, rogers, or other similarity measure            |
 | Dendogram       | The linkage metric that were used to build the dendrogram: single, ward., etc    |
 | Criteria        | The criteria used to select the best hybrid partition: silho, maf1 or mif1       |
-| Dataset.Name    | Dataset name according to *datasets-original.csv* file                           |
-| Number.Dataset  | Dataset number according to *datasets-original.csv* file                         |
-| Number.Folds    | Number of folds used in cross validation                                         |
-| Number.Cores    | Number of cores for parallel processing                                          |
+| Dataset_Name    | Dataset name according to *dataset-original.csv* file                            |
+| Number_Dataset  | Dataset number according to *dataset-original.csv* file                          |
+| Number_Folds    | Number of folds used in cross validation                                         |
+| Number_Cores    | Number of cores for parallel processing                                          |
 
 
 1 - Use directorys like */dev/shm*, *tmp* or *scratch* here.
