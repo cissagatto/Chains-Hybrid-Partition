@@ -76,7 +76,7 @@ criterio.2 = c("ma", "mi", "s")
 # implementation.2 = c("c", "u", "m", "p")
 
 implementation.1 = c("python")
- implementation.2 = c("p")
+implementation.2 = c("p")
 
 
 ###############################################################################

@@ -67,7 +67,14 @@ To run this experiment you need the _X-Fold Cross-Validation_ files and they mus
 
 
 ### STEP 3
-You will need the previously best hybrid partitions selected by this [code](https://github.com/cissagatto/Best-Partition-Silhouette). You must use here the results generated from the *OUTPUT* directory in that source code. They must be compressed into a *TAR.GZ* file and placed in a directory on your computer. The absolute path of this directory must be passed as a parameter in the configuration file. Please see the example in the _BEST-PARTITIONS_ directory in this source code. I already have the best chosen hybrid partitions from that code and you can downloaded [here](https://1drv.ms/u/s!Aq6SGcf6js1mru9ea6_ChUuPDvwdhQ?e=aMLLl3).
+You will need the previously best chosen partitions by one of the following codes:
+
+https://github.com/cissagatto/Best-Partition-Silhouette
+https://github.com/cissagatto/Best-Partition-MaF1
+https://github.com/cissagatto/Best-Partition-MiF1
+
+
+You must use here the results generated from the *OUTPUT* directory in that source code. They must be compressed into a *TAR.GZ* file and placed in a directory on your computer. The absolute path of this directory must be passed as a parameter in the configuration file. Please see the example in the _BEST-PARTITIONS_ directory in this source code. I already have the best chosen hybrid partitions from that code and you can downloaded [here](https://1drv.ms/u/s!Aq6SGcf6js1mru9ea6_ChUuPDvwdhQ?e=aMLLl3).
 
 
 
@@ -96,9 +103,11 @@ To run this code you will need a configuration file saved in *csv* format and wi
 | Temporary_Path  | Absolute path to the directory where temporary processing will be performed * 1  |
 | Partitions_Path | Absolute path to the directory where the best partitions are                     |
 | Implementation  | Must be "clus", "mulan", "python" or "utiml"                                     |
-| Similarity      | A similarity matrix from jaccard, rogers, or other similarity measure            |
-| Dendogram       | The linkage metric that were used to build the dendrogram: single, ward., etc    |
-| Criteria        | The criteria used to select the best hybrid partition: silho, maf1 or mif1       |
+| Similarity      | Must be "jaccard", "rogers" or another similarity measure                        |
+| Dendrogram      | The linkage metric that were used to build the dendrogram: single, ward., etc    |
+| Criteria        | Must be "maf1" to test the best partition chosen with Macro-F1,                  |
+|                 | "mif1" to test the best partition chosen with Micro-F1,                          |
+|                 | or "silho" to test the best partition chosen with Silhouette                     |
 | Dataset_Name    | Dataset name according to *dataset-original.csv* file                            |
 | Number_Dataset  | Dataset number according to *dataset-original.csv* file                          |
 | Number_Folds    | Number of folds used in cross validation                                         |
@@ -132,8 +141,6 @@ Topology: 6-Core model: Intel Core i7-10750H bits: 64 type: MT MCP arch: N/A | L
 
 Then the experiment was executed in a cluster at UFSCar.
 
-Important: CLUS and ECC from MULAN need Java to works. For them is necessary to generate all physical ARFF training, validating, and testing files for each of the best hybrid partition. Our code generates the partitions in memory and, to avoid memory problems, immediately after files are validated (or tested) and then deleted. Even so, make sure you have enough RAM for this procedure.
-
 
 ## Results
 The results are stored in the _OUTPUT_ directory.
@@ -149,7 +156,7 @@ Rscript start.R [absolute_path_to_config_file]
 Example:
 
 ```
-Rscript start.R "~/Chains-Hybrid-Partition/R/config-files/python/jaccard/ward.D2/silho/chp-GpositiveGO.csv"
+Rscript start.R "~/Chains-Hybrid-Partition/R/config-files/python/jaccard/ward.D2/silho/cp-GpositiveGO.csv"
 ```
 
 ## DOWNLOAD RESULTS
