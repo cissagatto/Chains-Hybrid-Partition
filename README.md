@@ -1,7 +1,7 @@
 # Chains of Hybrid Partition
 This code is part of my PhD research at PPG-CC/DC/UFSCar in colaboration with Katholieke Universiteit Leuven Campus Kulak Kortrijk Belgium.
 
-We use the same principles of Ensemble of Classifiers Chains but applied to a Chain of data Partitions.
+We use the same principles of Ensemble of Classifiers Chains but applied to a Chain of data Partitions. We use ECC within each cluster and then a chains within each cluster, making a complete chain.
 
 ## How to cite 
 @misc{Gatto2023, author = {Gatto, E. C.}, title = {Chains of Hybrid Partitions}, year = {2023}, publisher = {GitHub}, journal = {GitHub repository}, howpublished = {\url{https://github.com/cissagatto/Chains-Hybrid-Partition}}}
@@ -45,20 +45,20 @@ A file called _datasets-original.csv_ must be in the *root project directory*. T
 | Mean.IR      | optional  | **                                                    | 
 | Scumble      | optional  | **                                                    | 
 | TCS          | optional  | **                                                    | 
-| AttStart     | mandatory | Column number where the attribute space begins*       | 
+| AttStart     | mandatory | Column number where the attribute space begins * 1    | 
 | AttEnd       | mandatory | Column number where the attribute space ends          |
 | LabelStart   | mandatory | Column number where the label space begins            |
 | LabelEnd     | mandatory | Column number where the label space ends              |
-| Distinct     | optional  | **                                                    |
+| Distinct     | optional  | ** 2                                                  |
 | xn           | mandatory | Value for Dimension X of the Kohonen map              | 
 | yn           | mandatory | Value for Dimension Y of the Kohonen map              |
 | gridn        | mandatory | X times Y value. Kohonen's map must be square         |
 | max.neigbors | mandatory | The maximum number of neighbors is given by LABELS -1 |
 
 
-* Because it is the first column the number is always 1.
+1 - Because it is the first column the number is always 1.
 
-** [Click here](https://link.springer.com/book/10.1007/978-3-319-41111-8) to get explanation about each property.
+2 - [Click here](https://link.springer.com/book/10.1007/978-3-319-41111-8) to get explanation about each property.
 
 
 ### STEP 2
@@ -67,7 +67,7 @@ To run this experiment you need the _X-Fold Cross-Validation_ files and they mus
 
 
 ### STEP 3
-You will need the previously generated partitions by this [code](https://github.com/cissagatto/Best-Partition-Silhouette). You must use here the results generated from the *OUTPUT* directory in that source code. They must be compressed into a *TAR.GZ* file and placed in a directory on your computer. The absolute path of this directory must be passed as a parameter in the configuration file. Please see the example in the _BEST-PARTITIONS_ directory in this source code. I already have the best chosen hybrid partitions from that code and you can downloaded [here](https://1drv.ms/u/s!Aq6SGcf6js1mru9ea6_ChUuPDvwdhQ?e=aMLLl3).
+You will need the previously best hybrid partitions selected by this [code](https://github.com/cissagatto/Best-Partition-Silhouette). You must use here the results generated from the *OUTPUT* directory in that source code. They must be compressed into a *TAR.GZ* file and placed in a directory on your computer. The absolute path of this directory must be passed as a parameter in the configuration file. Please see the example in the _BEST-PARTITIONS_ directory in this source code. I already have the best chosen hybrid partitions from that code and you can downloaded [here](https://1drv.ms/u/s!Aq6SGcf6js1mru9ea6_ChUuPDvwdhQ?e=aMLLl3).
 
 
 
@@ -90,19 +90,23 @@ You can also run this code using the AppTainer [container](https://1drv.ms/u/s!A
 ### STEP 5
 To run this code you will need a configuration file saved in *csv* format and with the following information:
 
-| Config          | Value                                                                         | 
-|-----------------|-------------------------------------------------------------------------------| 
-| Dataset_Path    | Absolute path to the directory where the dataset's tar.gz is stored           |
-| Temporary_Path  | Absolute path to the directory where temporary processing will be performed*  |
-| Partitions_Path | Absolute path to the directory where the best partitions are                  |
-| classifier      | Must be "clus", "mulan", "python" or "utiml"                                  |
-| similarity      | Choose which one to run: jaccard, rogers, random1 or random2                  |
-| dataset_name    | Dataset name according to *datasets-original.csv* file                        |
-| number_dataset  | Dataset number according to *datasets-original.csv* file                      |
-| number_folds    | Number of folds used in cross validation                                      |
-| number_cores    | Number of cores for parallel processing                                       |
+| Config          | Value                                                                            | 
+|-----------------|----------------------------------------------------------------------------------| 
+| Dataset_Path    | Absolute path to the directory where the dataset's tar.gz is stored              |
+| Temporary_Path  | Absolute path to the directory where temporary processing will be performed * 1  |
+| Partitions_Path | Absolute path to the directory where the best partitions are                     |
+| Implementation  | Must be "clus", "mulan", "python" or "utiml"                                     |
+| Similarity      | A similarity matrix from jaccard, rogers, or other similarity measure            |
+| Dendogram       | The linkage metric that were used to build the dendrogram: single, ward., etc    |
+| Criteria        | The criteria used to select the best hybrid partition: silho, maf1 or mif1       |
+| Dataset.Name    | Dataset name according to *datasets-original.csv* file                           |
+| Number.Dataset  | Dataset number according to *datasets-original.csv* file                         |
+| Number.Folds    | Number of folds used in cross validation                                         |
+| Number.Cores    | Number of cores for parallel processing                                          |
 
-* Use directorys like */dev/shm*, *tmp* or *scratch* here.
+
+1 - Use directorys like */dev/shm*, *tmp* or *scratch* here.
+
 
 You can save configuration files wherever you want. The absolute path will be passed as a command line argument.
 
@@ -128,14 +132,15 @@ Topology: 6-Core model: Intel Core i7-10750H bits: 64 type: MT MCP arch: N/A | L
 
 Then the experiment was executed in a cluster at UFSCar.
 
-Important: we used the CLUS and ECC from MULAN in this experiment. This implies generating all physical ARFF training, validating, and testing files for each of the generated partitions. Our code generates the partitions first in memory and then saves them to the HD. However, to avoid memory problems, immediately after saving to HD, the files are validated (or tested) and then deleted. Even so, make sure you have enough space on your HD and RAM for this procedure.
+Important: CLUS and ECC from MULAN need Java to works. For them is necessary to generate all physical ARFF training, validating, and testing files for each of the best hybrid partition. Our code generates the partitions in memory and, to avoid memory problems, immediately after files are validated (or tested) and then deleted. Even so, make sure you have enough RAM for this procedure.
 
 
 ## Results
-The results stored in the _OUTPUT_ directory.
+The results are stored in the _OUTPUT_ directory.
+
 
 ## RUN
-To run the code, open the terminal, enter the *~/Chains-Hybrid-Partition/R* directory, and type
+To run the code, open the terminal, enter the *~/Chains-Hybrid-Partition/R* directory, and type:
 
 ```
 Rscript start.R [absolute_path_to_config_file]
@@ -144,13 +149,16 @@ Rscript start.R [absolute_path_to_config_file]
 Example:
 
 ```
-Rscript start.R "~/Chains-Hybrid-Partition/R/config-files/mulan/jaccard-3/mulan-j3-GpositiveGO.csv"
+Rscript start.R "~/Chains-Hybrid-Partition/R/config-files/python/jaccard/ward.D2/silho/chp-GpositiveGO.csv"
 ```
 
 ## DOWNLOAD RESULTS
 [Click here]
 
+
 ## Acknowledgment
+This study is financed in part by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior - Brasil (CAPES) - Finance Code 001
+
 This study is financed in part by the Conselho Nacional de Desenvolvimento Científico e Tecnológico - Brasil (CNPQ) - Process number 200371/2022-3.
 
 ## Links
