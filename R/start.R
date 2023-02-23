@@ -204,10 +204,10 @@ print(ds)
 cat("\n################################################################\n")
 
 
-cat("\n##########################################")
-cat("\n# START: Creating Temp Folder            #")
-cat("\n##########################################\n\n")
-if (dir.exists(folder.results) == FALSE) {dir.create(folder.results)}
+# cat("\n##########################################")
+# cat("\n# START: Creating Temp Folder            #")
+# cat("\n##########################################\n\n")
+# if (dir.exists(folder.results) == FALSE) {dir.create(folder.results)}
 
 
 cat("\n#############################")

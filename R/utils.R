@@ -55,18 +55,18 @@ directories <- function(parameters){
   # execution. Other folder is used to store definitely the results.          #
   # Example: "/dev/shm/res"                                                   #
   #############################################################################
-  folderResults = parameters$folder.results
-  if(dir.exists(parameters$folder.results) == TRUE){
-    setwd(folderResults)
-    dir_folderResults = dir(folderResults)
-    n_folderResults = length(dir_folderResults)
-  } else {
-    dir.create(folderResults)
-    setwd(folderResults)
-    dir_folderResults = dir(folderResults)
-    n_folderResults = length(dir_folderResults)
-  }
-  retorno$folderResults = folderResults
+  # folderResults = parameters$folder.results
+  # if(dir.exists(parameters$folder.results) == TRUE){
+  #   setwd(folderResults)
+  #   dir_folderResults = dir(folderResults)
+  #   n_folderResults = length(dir_folderResults)
+  # } else {
+  #   dir.create(folderResults)
+  #   setwd(folderResults)
+  #   dir_folderResults = dir(folderResults)
+  #   n_folderResults = length(dir_folderResults)
+  # }
+  # retorno$folderResults = folderResults
   
   
   #############################################################################
